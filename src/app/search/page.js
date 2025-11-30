@@ -1,12 +1,13 @@
 'use client'
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { Header } from "../_components/header";
 import { Form } from "../_components/form";
 import { CardPub } from "../_components/cardPub";
 import { useSearchParams } from "next/navigation";
 import axios from "axios";
+import { SearchContent } from "../_components/searchContent";
 
 const pubshhh = [
   {
@@ -110,17 +111,10 @@ export default function Search() {
       <Header />
       <main className="w-4xl h-full flex flex-col items-center">
         <Form alwaysShowFilters />
-        <div className="w-full py-6">
-          {publications.length > 0 ? (
-            publications.map((res, index) => (
-              <CardPub key={index} pubss={res}/>
-            ))
-          ) : (
-            <p>Nenhuma publicação econtrada</p>
-          )
-            
-          }
-        </div>
+        <Suspense fallback={<p className="text-xl p-8">Preparando busca...</p>}>
+          <SearchContent/>
+        </Suspense>
+       
       </main>
     </div>
   );
