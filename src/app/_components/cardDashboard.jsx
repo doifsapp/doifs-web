@@ -3,7 +3,8 @@
 import axios from "axios";
 import { TrendingUp, TrendingDown, Sigma, Newspaper } from "lucide-react";
 import { useEffect, useState } from "react";
-
+import { format } from "date-fns"; 
+import { ptBR } from "date-fns/locale";
 
 const options = [
     {
@@ -72,7 +73,7 @@ export function CardDashboard() {
             console.log("Saida > ", latest_pubs[0])
             if (latest) {
                 institute = latest.institute
-                date = latest.date//format(new Date(latest.date), 'dd/MM/yyyy', {location: ptBR}) a
+                date = format(new Date(latest.date), 'dd/MM/yyyy', {location: ptBR})
                 descrition = `O ${latest.institute} fez uma ${latest.type} em `
             }
         } else if (option.title === 'Total de atos') {

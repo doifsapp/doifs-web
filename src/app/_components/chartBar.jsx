@@ -167,8 +167,8 @@ export function ChartLineMultianual() {
       console.log("Ponnto >> ", res.data)
       const anos = res.data.years?.[0]?.years || [];
       if (anos.length >= 2) {
-        setAno1(anos[-1].toString());
-        setAno2(anos[-2].toString())
+        setAno1(anos[0].toString());
+        setAno2(anos[1].toString())
       }
     })
     .catch((error) => {
