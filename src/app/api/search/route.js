@@ -1,11 +1,12 @@
 // Next.js 13+ API Route Handler (BFF)
 import axios from "axios";
+import { NextResponse } from "next/server";
 
 export async function GET(request) {
- const { searchParams } = new URL(request.url)
+  const { searchParams } = new URL(request.url)
   const name = searchParams.get('name')
   const institute = searchParams.get('institute')
-   const type = searchParams.get('type')
+  const type = searchParams.get('type')
   const year = searchParams.get('year')
 
   // Monta a query string para a FastAPI
@@ -17,20 +18,22 @@ export async function GET(request) {
 
   const FASTAPI_URL = process.env.PATH_URL_BASE_API
 
-  // Retorno inicial vazio
-  let result = { publications: [] }
+  
+  if (!FASTAPI_URL) {
+        return NextResponse.json({error: "FASTAPI_URL não está configurada"}, {status: 500})
+      }
 
-  // Requisição para a API FastAPI com then/catch
-  await axios
-    .get(`${FASTAPI_URL}/buscar?${query.toString()}`)
-    .then((res) => {
-      result = res.data
-    })
-    .catch((error) => {
-      console.error('Erro ao consultar a API FastAPI:', error)
-      result = { error: 'Erro na requisição' }
-      JSON.stringify({error: 'Esse é um erro' || 'Outro erro'})
-    })
+  try {
+      console.log("ROUTE SEARCH ><")
+      const response = await axios.get(`${FASTAPI_URL}/buscar?${query.toString()}`)
+      return NextResponse.json(response.data)
 
-  return Response.json(result) //oi
+    } catch (error) {
+      console.error("Erro ao consultar a API", error.message)
+
+      return NextResponse.json(
+        {error: "Falha ao conectar ou processar a API", detail: error.message},
+        {status: 502}
+      )
+    }
 }

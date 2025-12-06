@@ -76,36 +76,8 @@ export default function Search() {
   //const data = await fetch('http://127.0.0.1:8000/buscar?name=JOSE DIOGO&institute=IFAL&year=2018')
   //const res = await data.json() oi
 
-  const [publications, setPublications] = useState([]);
-  const searchParams = useSearchParams();
-
-  useEffect(() => {
-    const name = searchParams.get("name");
-    const institute = searchParams.get("institute");
-    const type = searchParams.get("type");
-    const year = searchParams.get("year");
-
-    if (!name || !institute || !type || !year ) return;
-
-    const query = new URLSearchParams({
-      name,
-      institute,
-      type,
-      year,
-    })
-
-    axios
-    .get(`/api/search?${query.toString()}`)
-    .then((res) => {
-      setPublications(res.data.publications || [])
-    })
-    .catch((error) => {
-      console.error('Erro ao buscar publicações: ', error)
-    })
-  }, [searchParams])
-
   
-
+  
   return (
     <div className="h-[600px] flex flex-col items-center">
       <Header />

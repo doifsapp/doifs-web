@@ -7,7 +7,7 @@ import axios from "axios";
 import { CardPub } from "@/app/_components/cardPub"; // Ajuste o caminho conforme necessário
 
 export function SearchContent() {
-    const [publications, setPublications] = useState([]);
+    const [publicationsData, setPublications] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const searchParams = useSearchParams();
 
@@ -16,55 +16,51 @@ export function SearchContent() {
         const institute = searchParams.get("institute");
         const type = searchParams.get("type");
         const year = searchParams.get("year");
-
-        // Se nenhum parâmetro de filtro principal estiver presente (página acessada sem busca)
-        if (!name && !institute && !type && !year) {
-            setPublications([]);
-            setIsLoading(false);
-            return;
-        }
-
-        // Se algum parâmetro estiver faltando, você pode decidir buscar ou retornar
-        if (!name || !institute || !type || !year) {
-            // Decisão: Você pode querer exibir uma mensagem ou não fazer a busca
-            // Por enquanto, faremos a busca APENAS se todos os 4 estiverem presentes
-            setIsLoading(false);
-            return;
-        }
+       
         
         setIsLoading(true);
 
-        const query = new URLSearchParams({
-            name,
-            institute,
-            type,
-            year,
-        })
+        const params = {}
+
+        if (name) params.name = name
+        if (institute) params.institute = institute
+        if (type) params.type = type
+        if (year) params.year = year
+        
+        if (Object.keys(params).length === 0) {
+            setIsLoading(false)
+            return;
+        }
+
+        const query = new URLSearchParams(params)
 
         axios
         .get(`/api/search?${query.toString()}`)
         .then((res) => {
-            // Supondo que a API retorna { publications: [...] }
-            setPublications(res.data.publications || []);
+            setPublications(res.data);
+            
         })
         .catch((error) => {
-            console.error('Erro ao buscar publicações: ', error);
-            setPublications([]); // Limpa em caso de erro
+            console.error("Erro ao realizar consulta.", error)
+            setPublications([]); 
         })
         .finally(() => {
             setIsLoading(false);
         });
-    }, [searchParams]); // Dependência em searchParams garante que a busca ocorre a cada mudança de URL
+    }, [searchParams]);
 
-    // ---------------------------------
-    // Renderização do Conteúdo de Busca
-    // ---------------------------------
+    const publications = publicationsData.publications || []
+    const count = publicationsData.count || []
+    
+
     if (isLoading) {
         return <p className="text-xl p-8">Buscando publicações...</p>;
     }
     
     return (
         <div className="w-full py-6">
+           <h2 className="text-amber-500">SAIDA - {count}</h2>
+
             {publications.length > 0 ? (
                 // Mapeie e exiba os resultados
                 publications.map((res, index) => (

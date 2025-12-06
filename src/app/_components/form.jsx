@@ -22,7 +22,14 @@ export function Form({ alwaysShowFilters = false }) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        const query = new URLSearchParams(formData).toString();
+
+        const filledData = {}
+        for (const key in formData) {
+            if (formData[key] && formData[key] !== "null"){
+                filledData[key] = formData[key]
+            }
+        }
+        const query = new URLSearchParams(filledData).toString();
         router.push(`/search?${query}`);
     };
 

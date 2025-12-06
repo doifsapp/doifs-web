@@ -15,7 +15,7 @@ import { ChartStateGroupedBar } from "../_components/chartBarr";
 
 export default function Dashboard() {
     return (
-        <section className="h-[700px]">
+        <section className="bg-blue-950">
             <HeaderDashboard/>
             <div className="mx-40 mt-20">
                
