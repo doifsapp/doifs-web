@@ -209,7 +209,7 @@ export function ChartLineMultianual() {
 
     // 3. Garante a ordem correta dos meses no eixo X (crucial para gráficos de linha)
     //const ordemMeses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
-    const ordemMeses = ["janeiro", "fevereiro", "marco", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
+    const ordemMeses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
     
 
     // Filtra e ordena para garantir que os meses inexistentes (se a API não devolver) sejam removidos
