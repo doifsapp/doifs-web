@@ -1,7 +1,7 @@
 'use client'
 
 import { CardDashboard } from "../_components/cardDashboard";
-import { HeaderDashboard } from "../_components/headerDashboard";
+import { SidebarMenu } from "../_components/sidebarMenu";
 import { SideBar } from "../_components/sideBar";
 import { FaArrowTrendUp } from "react-icons/fa6";
 import { FaArrowTrendDown } from "react-icons/fa6";
@@ -15,33 +15,35 @@ import { ChartStateGroupedBar } from "../_components/chartBarr";
 
 export default function Dashboard() {
     return (
-        <section className="bg-blue-950">
-            <HeaderDashboard/>
-            <div className="mx-40 mt-20">
-               
+        <section className="bg-violet-50 min-h-screen flex flex-row">
+            <SidebarMenu />
+            <div className="flex-1 flex flex-col items-center pt-20 overflow-x-hidden">
+                <div className="max-w-6xl">
 
-                <div className="w-full">
-                    <CardDashboard/>
-                </div>
 
-                <div className="pt-8">
-                    <ChartArea/>
-                </div>
+                    <div className="w-full">
+                        <CardDashboard />
+                    </div>
 
-                <div className="pt-8">
-                    <ChartLineMultianual/>
-                </div>
+                    <div className="pt-8">
+                        <ChartArea />
+                    </div>
 
-                <div className="pt-8">
-                    <ChartBarLabelCustom/>
-                </div>
+                    <div className="pt-8">
+                        <ChartLineMultianual />
+                    </div>
 
-                <div className="pt-8 ">
-                    <ChartPieRegional/>
-                </div>
+                    <div className="pt-8">
+                        <ChartBarLabelCustom />
+                    </div>
 
-                <div className="pt-8 ">
-                    <ChartStateGroupedBar/>
+                    <div className="pt-8 ">
+                        <ChartPieRegional />
+                    </div>
+
+                    <div className="pt-8 ">
+                        <ChartStateGroupedBar />
+                    </div>
                 </div>
             </div>
         </section>
