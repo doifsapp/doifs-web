@@ -12,12 +12,13 @@ import { ChartLineMultianual } from "../_components/chartBar";
 import { ChartBarLabelCustom } from "../_components/chartBarHorizontal";
 import { ChartStateGroupedBar } from "../_components/chartBarr";
 
-
+//bg-violet-50
 export default function Dashboard() {
     return (
-        <section className="bg-violet-50 min-h-screen flex flex-row">
+        <section className="bg-black min-h-screen flex flex-row">
             <SidebarMenu />
-            <div className="flex-1 flex flex-col items-center pt-20 overflow-x-hidden">
+
+            <div className="flex-1 flex flex-col items-center overflow-x-hidden">
                 <div className="max-w-6xl">
 
 
