@@ -121,6 +121,13 @@ export function Form({ alwaysShowFilters = false }) {
                                 <option value="Nomeação">Nomeação</option>
                                 <option value="Exoneração">Exoneração</option>
                                 <option value="Afastamento">Afastamento</option>
+                                <option value="Aposentadoria">Aposentaria</option>
+                                <option value="Pensão">Pensão</option>
+                                <option value="Demissão">Demissão</option>
+                                <option value="Dispensa">Dispensa</option>
+                                <option value="Designação">Designação</option>
+                                <option value="Substituição">Substituição</option>
+
                             </select>
                         </div>
 
