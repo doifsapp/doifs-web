@@ -19,13 +19,13 @@ export default function Home() {
               <Typewriter
                 onInit={(typewriter) => {
                   typewriter
-                    .typeString('Nomeações')
+                    .typeString('Busque')
                     .pauseFor(1000)
                     .deleteAll()
-                    .typeString('Exonerações')
+                    .typeString('Filtre')
                     .pauseFor(1000)
                     .deleteAll()
-                    .typeString('Atos de Pessoal')
+                    .typeString('Analise')
                     .pauseFor(1000)
                     .deleteAll()
                     .typeString('Search')
