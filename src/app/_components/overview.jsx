@@ -15,7 +15,7 @@ import { TrendingUp, TrendingDown } from 'lucide-react';
 
 // --- Dados de Exemplo (Agora a taxa controla o gráfico) ---
 const cardStats = [
-  { id: 1, titulo: "Resumo Nomeações", total: 200, taxa: 95, hasChart: true },
+  { id: 1, titulo: "Resumo Nomeações", total: 200, taxa: -36, hasChart: true },
   { id: 2, titulo: "Resumo Exonerações", total: 150, taxa: 45, hasChart: true },
   { id: 3, titulo: "Resumo Afastamentos", total: 80, taxa: 8, hasChart: true },
   { id: 4, titulo: "Resumo Aposentadorias", total: 40, taxa: 25, hasChart: true },
@@ -31,9 +31,9 @@ const chartDataRaw = [
   { total: 4000, year: 2024, month: "Jan" }, { total: 3200, year: 2024, month: "Fev" },
   { total: 4500, year: 2024, month: "Mar" }, { total: 3800, year: 2024, month: "Abr" },
   { total: 5000, year: 2024, month: "Mai" }, { total: 4200, year: 2024, month: "Jun" },
-  { total: 3900, year: 2024, month: "Jul" }, { total: 4100, year: 2024, month: "Ago" },
-  { total: 4600, year: 2024, month: "Set" }, { total: 4800, year: 2024, month: "Out" },
-  { total: 5200, year: 2024, month: "Nov" }, { total: 5500, year: 2024, month: "Dez" },
+  { total: 3900, year: 2024, month: "Jul" }, { total: 40, year: 2024, month: "Ago" },
+  { total: 4600, year: 2024, month: "Set" }, { total: 480, year: 2024, month: "Out" },
+  { total: 5200, year: 2024, month: "Nov" }, { total: 550, year: 2024, month: "Dez" },
 ];
 
 // --- Sub-componente: Mini Pie Chart DINÂMICO ---
@@ -100,7 +100,7 @@ export function Overview() {
 
   return (
     <div className="w-full bg-slate-50 p-4 sm:p-8">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-5xl mx-auto">
         
         {/* Grid de Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8">

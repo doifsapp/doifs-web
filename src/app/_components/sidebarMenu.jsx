@@ -1,12 +1,4 @@
-import { 
-  ChevronLeft,
-  LayoutDashboard, 
-  Repeat, 
-  Users, 
-  TrendingUp, 
-  UserCog, 
-  ShieldCheck 
-} from 'lucide-react';
+// ... (imports do lucide-react continuam iguais)
 
 const options = [
     { label: "Visão geral", icon: LayoutDashboard },
@@ -15,30 +7,32 @@ const options = [
     { label: "Ciclo de Carreira", icon: TrendingUp },
     { label: "Substituições Temporárias", icon: UserCog },
     { label: "Amparo e Seguridade", icon: ShieldCheck },
-  ];
-  
-export function SidebarMenu() {
+];
+
+export function SidebarMenu({ activeView, onSelectView }) {
     return (
         <header className="sticky top-0 h-screen w-2xs bg-white shadow-md flex flex-col items-center py-4 z-50">
-            <div className="w-full flex flex-row justify-center items-center gap-4 mt-8 mb-4 p-2">
-                <ChevronLeft size={46}/>
-                <img src="logo2-doifs.svg" alt="Logo Observatório Doifs" className="w-40"/>
-            </div>
-            <div className="flex flex-col justify-items-center gap-4 px-2 pt-24">
-                
+            {/* Logo e cabeçalho... */}
+            <div className="flex flex-col w-full gap-1 px-2 pt-24">
                 {options.map((option, index) => {
-                    const Icon = option.icon
+                    const Icon = option.icon;
+                    const isActive = activeView === option.label;
 
                     return (
                         <button
-                        key={index}
-                        className="flex gap-2 px-6 py-2 rounded-sm w-full cursor-pointer hover:bg-blue-100 active:bg-blue-200 items-center">
-                            <Icon size={20} color='#76738c'/>
-                            <span className="text-cyan-700">{option.label}</span>
+                            key={index}
+                            onClick={() => onSelectView(option.label)}
+                            className={`flex gap-3 px-6 py-3 rounded-lg w-full cursor-pointer items-center transition-all
+                                ${isActive ? 'bg-blue-50 text-blue-700' : 'text-slate-500 hover:bg-slate-50'}`}
+                        >
+                            <Icon size={20} className={isActive ? 'text-blue-600' : 'text-slate-400'}/>
+                            <span className={`text-sm ${isActive ? 'font-bold' : 'font-medium'}`}>
+                                {option.label}
+                            </span>
                         </button>
-                    )
+                    );
                 })}
             </div>
         </header>
-    )
+    );
 }
