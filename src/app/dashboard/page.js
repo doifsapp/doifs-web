@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from "react";
-import Overview from "../_components/overview";
+import { Overview } from "../_components/overview";
 import { SidebarMenu } from "../_components/sidebarMenu";
 import { CardDashboard } from "../_components/cardDashboard";
 import { ChartArea } from "../_components/chartArea";
