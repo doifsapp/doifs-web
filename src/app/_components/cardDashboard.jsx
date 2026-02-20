@@ -33,7 +33,7 @@ export function CardDashboard({ context }) {
         setMounted(true);
         const getTotals = async () => {
             try {
-                const response = await axios.get('http://127.0.0.1:8000/get-totals');
+                const response = await axios.get('/api/dashboard/totals');
                 setData(response.data);
             } catch (error) {
                 console.error("Erro ao buscar totais:", error);
