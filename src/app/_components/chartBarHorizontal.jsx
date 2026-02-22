@@ -1,8 +1,9 @@
-"use client"
+'use client'
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useMemo } from "react"
 import { TrendingUp } from "lucide-react"
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, LabelList } from "recharts"
+import axios from "axios"
 
 import {
   Card,
@@ -13,126 +14,162 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import {
-  ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
-import axios from "axios"
 
-const chartConfig = {
-  nomeacoes: {
-    label: "Nomeações",
-    color: "hsl(210 40% 50%)",
-  },
-  exoneracoes: {
-    label: "Exonerações",
-    color: "hsl(210 40% 70%)",
-  },
-}
-
-export function ChartBarLabelCustom() {
-  const [chartData, setChartData] = useState({})
+export function ChartBarLabelCustom({ context }) {
+  const [rawData, setRawData] = useState([])
+  const [isClient, setIsClient] = useState(false)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    axios
-      .get("api/dashboard/personnel")
-      .then((res) => {
-        setChartData(res.data)
-      })
-      .catch((error) => {
-        console.error("Erro ao buscar dados", error)
-      })
+    setIsClient(true)
+    async function fetchData() {
+      setLoading(true)
+      try {
+        const response = await axios.get("api/dashboard/personnel")
+        setRawData(response.data.tops_personnel || [])
+      } catch (error) {
+        console.error("Erro ao buscar dados do ranking:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchData()
   }, [])
 
-  const personnelData = chartData.tops_personnel || []
-  const totalAtos = personnelData.reduce((sum, item) => sum + (item.total_acts || 0), 0)
+  // 1. Processamento e Ranking (Top 10)
+  const chartData = useMemo(() => {
+    if (!rawData.length || !context) return []
+
+    return rawData
+      .map(item => {
+        const valA = item[context.serieA.key] || 0
+        const valB = item[context.serieB.key] || 0
+        return {
+          ...item,
+          displayName: item.acronym, // Usando a sigla para o eixo Y ficar limpo
+          fullName: item.responsible,
+          [context.serieA.key]: valA,
+          [context.serieB.key]: valB,
+          totalContext: valA + valB
+        }
+      })
+      // Ordena do maior para o menor com base na soma dos dois atos do contexto
+      .sort((a, b) => b.totalContext - a.totalContext)
+      // Pega apenas os 10 primeiros
+      .slice(0, 10)
+  }, [rawData, context])
+
+  // 2. Cálculo do Total Geral do Ranking para o rodapé
+  const totalRankingSum = useMemo(() => {
+    return chartData.reduce((acc, curr) => acc + curr.totalContext, 0)
+  }, [chartData])
+
+  const chartConfig = useMemo(() => ({
+    [context?.serieA.key]: {
+      label: context?.serieA.label,
+      color: "hsl(210 40% 50%)",
+    },
+    [context?.serieB.key]: {
+      label: context?.serieB.label,
+      color: "hsl(210 40% 80%)",
+    },
+  }), [context])
+
+  if (!isClient) return <div className="w-full h-[450px] bg-white rounded-2xl border border-gray-100 animate-pulse" />
 
   return (
-    <div className="rounded-2xl w-full">
-      <Card className="shadow-2xl">
-        <CardHeader>
-          <CardTitle>Ranking dos top 10 reitores dos Institutos Federais com mais atos assinados</CardTitle>
-          <CardDescription>Distribuição de nomeações e exonerações no intervalo de um ano.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ChartContainer
-            config={chartConfig}
-            // Altura aumentada para comportar as barras mais largas
-            className="aspect-auto h-[600px] w-full"
-          >
+    <Card className="rounded-2xl shadow-sm border-gray-100 bg-white h-full">
+      <CardHeader>
+        <CardTitle className="text-xl font-bold text-slate-800">
+          Top 10 Institutos - {context?.label}
+        </CardTitle>
+        <CardDescription>
+          Volume acumulado de {context?.serieA.label} e {context?.serieB.label} por gestão
+        </CardDescription>
+      </CardHeader>
+      
+      <CardContent>
+        {loading ? (
+          <div className="h-[400px] flex items-center justify-center italic text-slate-400">
+            Gerando ranking...
+          </div>
+        ) : (
+          <ChartContainer config={chartConfig} className="min-h-[400px] w-full">
             <BarChart
-              data={personnelData}
+              data={chartData}
               layout="vertical"
-              barSize={30}
-              margin={{
-                left: 20,
-                right: 60, // Espaço para o número total ao final
-                top: 10,
-                bottom: 10,
-              }}
+              margin={{ left: 10, right: 40, top: 10, bottom: 10 }}
             >
-              <CartesianGrid horizontal={false} strokeDasharray="3 3" opacity={0.2} />
-              
-              {/* 1. Ajuste de proporção: Aumentando a largura da coluna de nomes */}
+              <CartesianGrid horizontal={false} strokeDasharray="3 3" stroke="#f1f5f9" />
               <YAxis
-                dataKey="responsible_institute"
+                dataKey="displayName"
                 type="category"
                 tickLine={false}
+                tickMargin={10}
                 axisLine={false}
-                // Definido um valor alto para garantir que os nomes ocupem a maior parte da área
-                width={450} 
-                tick={{ 
-                  fill: "var(--foreground)", 
-                  fontSize: 12, 
-                  fontWeight: 500,
-                }}
-                className="uppercase whitespace-nowrap"
+                width={80}
               />
-
-              <XAxis dataKey="total_acts" type="number" hide/>
-
+              <XAxis type="number" hide />
+              
               <ChartTooltip
                 cursor={{ fill: "transparent" }}
-                content={<ChartTooltipContent indicator="line" />}
+                content={
+                  <ChartTooltipContent 
+                    hideLabel 
+                    formatter={(value, name, props) => (
+                      <div className="flex flex-col">
+                        <span className="text-[10px] text-muted-foreground uppercase">{props.payload.fullName}</span>
+                        <div className="flex items-center gap-2">
+                          <div className="h-2 w-2 rounded-full" style={{ backgroundColor: props.color }} />
+                          <span className="font-bold">{value} {name}</span>
+                        </div>
+                      </div>
+                    )}
+                  />
+                }
               />
 
               <Bar
-                dataKey="nomeacoes"
+                dataKey={context.serieA.key}
                 stackId="a"
-                fill={chartConfig.nomeacoes.color}
-                radius={[4, 0, 0, 4]} 
+                fill={chartConfig[context.serieA.key].color}
+                radius={[0, 0, 0, 0]} 
               />
-
               <Bar
-                dataKey="exoneracoes"
+                dataKey={context.serieB.key}
                 stackId="a"
-                fill={chartConfig.exoneracoes.color}
+                fill={chartConfig[context.serieB.key].color}
                 radius={[0, 4, 4, 0]}
               >
-                {/* 2. Removido o negrito (font-bold) conforme solicitado */}
                 <LabelList
-                  dataKey="total_acts"
+                  dataKey="totalContext"
                   position="right"
                   offset={10}
-                  className="fill-muted-foreground"
+                  className="fill-slate-500 font-medium"
                   fontSize={12}
-                  style={{ fontWeight: 400 }}
                 />
               </Bar>
             </BarChart>
           </ChartContainer>
-        </CardContent>
-        <CardFooter className="flex-col items-start gap-2 text-sm border-t pt-4 mt-4">
-          <div className="flex gap-2 leading-none font-medium">
-            Total de Atos analisados no último ano: {totalAtos}
-            <TrendingUp className="h-4 w-4" />
+        )}
+      </CardContent>
+
+      <CardFooter className="flex-col items-start gap-2 border-t pt-4">
+        <div className="flex w-full items-start gap-2 text-sm">
+          <div className="grid gap-2">
+            <div className="flex items-center gap-2 font-medium leading-none text-slate-700">
+              Total de {totalRankingSum.toLocaleString('pt-BR')} registros no Top 10 <TrendingUp className="h-4 w-4 text-emerald-500" />
+            </div>
+            <div className="flex items-center gap-2 leading-none text-muted-foreground italic">
+              Ranking baseado na soma de {context?.serieA.label} e {context?.serieB.label}
+            </div>
           </div>
-          <div className="text-muted-foreground">
-            Ranking discriminado por Nomeação (Azul Escuro) e Exoneração (Azul Claro).
-          </div>
-        </CardFooter>
-      </Card>
-    </div>
+        </div>
+      </CardFooter>
+    </Card>
   )
 }
