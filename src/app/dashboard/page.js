@@ -8,7 +8,7 @@ import { ChartArea } from "../_components/chartArea";
 import { ChartLineMultianual } from "../_components/chartBar";
 import { ChartBarLabelCustom } from "../_components/chartBarHorizontal";
 import { ChartPieRegional } from "../_components/chartPie";
-import { ChartStateGroupedBar } from "../_components/chartBarr";
+import { ChartBarState } from "../_components/chartBarr";
 
 // Configuração dos contextos conforme solicitado
 const DASHBOARD_CONTEXTS = {
@@ -48,7 +48,7 @@ export default function Dashboard() {
     );
 
     return (
-        <section className="bg-violet-50 min-h-screen flex flex-row font-sans">
+        <section className="bg-slate-50/80 min-h-screen flex flex-row font-sans text-slate-900">
             <SidebarMenu activeView={activeView} onSelectView={setActiveView} />
             
             <div className="flex-1 flex flex-col items-center overflow-x-hidden">
@@ -79,7 +79,7 @@ export default function Dashboard() {
                             </div>
 
                             <div className="pt-4 ">
-                                <ChartStateGroupedBar context={currentContext} />
+                                <ChartBarState context={currentContext} />
                             </div>
                         </div>
                     )}

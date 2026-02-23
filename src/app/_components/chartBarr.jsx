@@ -1,13 +1,15 @@
 'use client'
 
-import { Bar, BarChart, XAxis, YAxis, CartesianGrid, Legend } from "recharts"
-import * as React from "react"
-import { useState, useMemo, useEffect } from "react"
+import React, { useEffect, useState, useMemo } from "react"
+import { TrendingUp, MapPin } from "lucide-react"
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Legend } from "recharts"
 import axios from "axios"
 
 import {
     Card,
     CardContent,
+    CardDescription,
+    CardFooter,
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
@@ -21,135 +23,176 @@ import {
     SelectContent,
     SelectItem,
     SelectTrigger,
-    SelectValue
+    SelectValue,
 } from "@/components/ui/select"
 
-const rawApiDataState = [
-    { 'uf': 'AL', 'state_name': 'Alagoas', 'year': 2018, 'nomeacoes': 20, 'exoneracoes': 10 },
-    // ... restante dos dados omitidos para brevidade
-];
+export function ChartBarState({ context }) {
+    const [rawData, setRawData] = useState([])
+    const [selectedYear, setSelectedYear] = useState("")
+    const [isClient, setIsClient] = useState(false)
+    const [loading, setLoading] = useState(true)
 
-const chartConfigState = {
-    nomeacoes: {
-        label: "Nomeações",
-        color: "hsl(14, 100%, 70%)",
-    },
-    exoneracoes: {
-        label: "Exonerações",
-        color: "hsl(210, 100%, 65%)",
-    },
-};
-
-const transformAndFilterData = (apiData, year) => {
-    const filtered = apiData.filter(item => item.year === parseInt(year));
-    return filtered.sort((a, b) => b.nomeacoes - a.nomeacoes);
-}
-
-export function ChartStateGroupedBar() {
-    const [isMounted, setIsMounted] = useState(false);
-    const [chartData, setChartData] = useState({});
-    const [selectedYear, setSelectedYear] = useState("2018");
+    const chartConfig = {
+        valA: { label: context?.serieA.label, color: "#2563eb" },
+        valB: { label: context?.serieB.label, color: "#93c5fd" },
+    }
 
     useEffect(() => {
-        setIsMounted(true);
-        axios.get("api/dashboard/states")
-            .then((res) => {
-                setChartData(res.data);
-                const year_last = res.data.years?.[0]?.years || [];
-                if(year_last.length > 0) setSelectedYear(year_last[0].toString());
-            })
-            .catch((error) => console.error("Erro ao buscar dados", error));
-    }, []);
+        setIsClient(true)
+        async function fetchData() {
+            setLoading(true)
+            try {
+                const response = await axios.get("api/dashboard/states")
+                const data = response.data.state_totals || []
+                setRawData(data)
+                
+                const years = Array.from(new Set(data.map(d => d.year))).sort((a, b) => b - a)
+                if (years.length > 0) setSelectedYear(String(years[0]))
+            } catch (error) {
+                console.error("Erro ao buscar dados estaduais:", error)
+            } finally {
+                setLoading(false)
+            }
+        }
+        fetchData()
+    }, [context])
 
-    const statesData = chartData.state_totals || rawApiDataState;
-    const years = chartData.years?.[0]?.years || [2018, 2024];
+    const availableYears = useMemo(() => {
+        return Array.from(new Set(rawData.map(d => d.year))).sort((a, b) => b - a)
+    }, [rawData])
 
-    const filteredData = useMemo(() => {
-        return transformAndFilterData(statesData, selectedYear);
-    }, [statesData, selectedYear]);
+    const chartData = useMemo(() => {
+        if (!rawData.length || !context || !selectedYear) return []
 
-    // AJUSTE PRINCIPAL: Cálculo de altura dinâmica para evitar barras juntas
-    // Multiplicamos o número de estados por 60px (espaço para as duas barras + respiro)
-    const dynamicHeight = useMemo(() => {
-        const minHeight = 400;
-        const calculatedHeight = filteredData.length * 60; 
-        return Math.max(minHeight, calculatedHeight);
-    }, [filteredData]);
+        return rawData
+            .filter(item => String(item.year) === selectedYear)
+            .map(item => ({
+                state: item.uf,
+                full_name: item.state_name,
+                valA: item[context.serieA.key] || 0,
+                valB: item[context.serieB.key] || 0,
+                total: (item[context.serieA.key] || 0) + (item[context.serieB.key] || 0)
+            }))
+            .sort((a, b) => b.total - a.total)
+    }, [rawData, context, selectedYear])
 
-    const whiteTextStyle = { fill: 'white', fontSize: 12 };
+    const totalPeriod = useMemo(() => {
+        return chartData.reduce((acc, curr) => acc + curr.total, 0)
+    }, [chartData])
+
+    if (!isClient) return <div className="w-full h-[600px] rounded-2xl border bg-slate-50 animate-pulse" />
 
     return (
-        <div className="rounded-2xl w-full mb-28">
-            <Card className="flex flex-col shadow-2xl border-none overflow-hidden">
-                <CardHeader className="items-start pb-4">
-                    <CardTitle>Atos por Estado e Tipo</CardTitle>
-                    <div className="flex items-center gap-2 mt-2">
-                        <span className="text-sm text-gray-400">Ano:</span>
-                        <Select value={selectedYear} onValueChange={setSelectedYear}>
-                            <SelectTrigger className="w-[100px] text-black bg-white border-white">
-                                <SelectValue placeholder="Ano" />
-                            </SelectTrigger>
-                            <SelectContent className="bg-white">
-                                {years.map(year => (
-                                    <SelectItem key={year} value={year.toString()} className="text-black">
-                                        {year}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-                </CardHeader>
+        <Card className="rounded-2xl shadow-sm border-gray-100 bg-white flex flex-col h-full">
+            <CardHeader className="flex flex-row items-center justify-between pb-4">
+                <div className="grid gap-1">
+                    <CardTitle className="text-xl font-bold text-slate-800 flex items-center gap-2">
+                        <MapPin className="h-5 w-5 text-blue-600" />
+                        Distribuição por Estado
+                    </CardTitle>
+                    <CardDescription>Ranking completo por unidade federativa</CardDescription>
+                </div>
+                <Select value={selectedYear} onValueChange={setSelectedYear}>
+                    <SelectTrigger className="w-[110px] bg-slate-50">
+                        <SelectValue placeholder="Ano" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {availableYears.map(year => (
+                            <SelectItem key={year} value={String(year)}>{year}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            </CardHeader>
 
-                {/* Container com scroll para não vazar da página se houver muitos estados */}
-                <CardContent className="flex-1 pb-4 overflow-y-auto max-h-[80vh]">
-                    {!isMounted ? (
-                        <div className="flex items-center justify-center h-[400px]">Carregando...</div>
-                    ) : (
-                        <ChartContainer
-                            config={chartConfigState}
-                            // Aplicando a altura dinâmica aqui
-                            style={{ height: `${dynamicHeight}px`, width: '100%' }}
+            <CardContent className="flex-1">
+                {loading ? (
+                    <div className="h-[500px] flex items-center justify-center italic text-slate-400">Processando estados...</div>
+                ) : (
+                    /* AJUSTE 1: Altura aumentada para 1100px para acomodar todos os estados com folga */
+                    <ChartContainer config={chartConfig} className="min-h-[1200px] w-full">
+                        <BarChart
+                            data={chartData}
+                            layout="vertical"
+                            margin={{ left: 10, right: 40, top: 20, bottom: 20 }}
+                            /* AJUSTE 2: barCategoryGap em 40% cria um grande espaço entre os estados */
+                            barCategoryGap="50%" 
+                            barGap={2}
                         >
-                            <BarChart
-                                data={filteredData}
-                                layout="vertical"
-                                // Aumentamos o GAP entre as categorias de estados
-                                barCategoryGap="35%" 
-                                barGap={8}
-                                margin={{ left: 20, right: 40, top: 10, bottom: 10 }}
-                            >
-                                <CartesianGrid horizontal={false} strokeDasharray="3 3" stroke="#444444" />
-                                <XAxis type="number" tick={whiteTextStyle} stroke="#555555" />
-                                <YAxis
-                                    type="category"
-                                    dataKey="state_name"
-                                    tick={whiteTextStyle}
-                                    width={120}
-                                    tickLine={false}
-                                    axisLine={false}
-                                />
-                                <ChartTooltip content={<ChartTooltipContent className="bg-gray-800 text-white" />} />
-                                <Legend verticalAlign="top" align="right" height={50} />
+                            <CartesianGrid horizontal={false} strokeDasharray="3 3" stroke="#f1f5f9" />
+                            
+                            <YAxis
+                                dataKey="state"
+                                type="category"
+                                tickLine={false}
+                                axisLine={false}
+                                fontSize={12}
+                                fontWeight={700}
+                                tick={{ fill: '#1e293b' }}
+                            />
 
-                                <Bar
-                                    dataKey="nomeacoes"
-                                    fill="var(--color-nomeacoes)"
-                                    barSize={18} // Largura da barra aumentada
-                                    radius={[0, 4, 4, 0]}
-                                    name={chartConfigState.nomeacoes.label}
-                                />
-                                <Bar
-                                    dataKey="exoneracoes"
-                                    fill="var(--color-exoneracoes)"
-                                    barSize={18} // Largura da barra aumentada
-                                    radius={[0, 4, 4, 0]}
-                                    name={chartConfigState.exoneracoes.label}
-                                />
-                            </BarChart>
-                        </ChartContainer>
-                    )}
-                </CardContent>
-            </Card>
-        </div>
+                            <YAxis
+                                yAxisId="right"
+                                orientation="right"
+                                dataKey="total"
+                                type="category"
+                                tickLine={false}
+                                axisLine={false}
+                                fontSize={11}
+                                fontWeight={600}
+                                tick={{ fill: '#64748b' }}
+                                tickFormatter={(value) => `${value}`}
+                            />
+
+                            <XAxis type="number" hide />
+                            
+                            <ChartTooltip
+                                cursor={{ fill: "#f8fafc" }}
+                                content={<ChartTooltipContent 
+                                    indicator="dot" 
+                                    labelFormatter={(_, payload) => payload[0]?.payload?.full_name} 
+                                />}
+                            />
+
+                            <Bar
+                                dataKey="valA"
+                                name={context?.serieA.label}
+                                fill={chartConfig.valA.color}
+                                radius={[0, 4, 4, 0]}
+                                barSize={16} /* Barra levemente mais grossa para preencher o novo espaço */
+                            />
+                            
+                            <Bar
+                                dataKey="valB"
+                                name={context?.serieB.label}
+                                fill={chartConfig.valB.color}
+                                radius={[0, 4, 4, 0]}
+                                barSize={16}
+                            />
+
+                            <Legend 
+                                verticalAlign="top" 
+                                align="right" 
+                                iconType="circle"
+                                wrapperStyle={{ 
+                                    paddingBottom: '40px', 
+                                    fontSize: '12px',
+                                    color: '#64748b'
+                                }}
+                            />
+                        </BarChart>
+                    </ChartContainer>
+                )}
+            </CardContent>
+
+            <CardFooter className="flex-col items-start gap-2 border-t pt-4 text-sm bg-slate-50/50">
+                <div className="flex gap-2 font-bold text-slate-700 leading-none">
+                    Total de {totalPeriod.toLocaleString('pt-BR')} atos em {selectedYear}
+                    <TrendingUp className="h-4 w-4 text-emerald-500" />
+                </div>
+                <div className="text-sm text-slate-500 italic">
+                    Ranking de produtividade e movimentação de pessoal por unidade da federação.
+                </div>
+            </CardFooter>
+        </Card>
     )
 }
