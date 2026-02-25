@@ -12,6 +12,9 @@ export function Form({ alwaysShowFilters = false }) {
     const [institutes, setInstitutes] = useState([])
     const [years, setYears] = useState([])
 
+    //mensagem de erro
+    const [error, setError] = useState("")
+
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -21,14 +24,12 @@ export function Form({ alwaysShowFilters = false }) {
                 setTypes(data.types || [])
                 setInstitutes(data.institutes || [])
                 setYears(data.years || [])
-            } catch (error){
+            } catch (error) {
                 console.error("Erro ao buscar dados para filtros", error.message)
             }
         }
         fetchData()
     }, [])
-
-    console.log("TIPOS: ", types)
 
     const initialFormState = {
         name: '',
@@ -40,7 +41,7 @@ export function Form({ alwaysShowFilters = false }) {
     const [formData, setFormData] = useState(initialFormState);
     // Inicializa com true se alwaysShowFilters for passado, permitindo fechar depois
     const [showFilters, setShowFilters] = useState(alwaysShowFilters);
-    
+
     const router = useRouter();
     const searchParams = useSearchParams();
 
@@ -70,20 +71,37 @@ export function Form({ alwaysShowFilters = false }) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+
+        //validção do campo name
+        if (!formData.name || formData.name.trim() === "") {
+            setError("Por favor, insira o nome do servidor para realizar a busca.")
+            return
+        }
+        //limpa o erro caso exista
+        setError("")
+
         const filledData = {};
         for (const key in formData) {
             if (formData[key] && formData[key] !== "" && formData[key] !== "null") {
                 filledData[key] = formData[key];
             }
         }
+        //busca repetida
         const query = new URLSearchParams(filledData).toString();
+        const targetUrl = `/search?${query}`
+
+        if (window.location.pathname + window.location.search === targetUrl) {
+            router.refresh()
+        } else {
+            router.push(targetUrl)
+        }
         router.push(`/search?${query}`);
     };
 
     return (
         <div className="w-full max-w-5xl mx-auto px-4">
-            <form 
-                onSubmit={handleSubmit} 
+            <form
+                onSubmit={handleSubmit}
                 className="flex flex-col w-full p-5 bg-white rounded-2xl shadow-sm border border-slate-100 transition-all"
             >
                 {/* Linha Principal de Busca */}
@@ -114,11 +132,10 @@ export function Form({ alwaysShowFilters = false }) {
                         <button
                             type="button"
                             onClick={() => setShowFilters(!showFilters)}
-                            className={`p-4 rounded-xl border transition-all flex items-center justify-center ${
-                                showFilters 
-                                ? 'bg-emerald-50 border-emerald-200 text-emerald-600 shadow-inner' 
+                            className={`p-4 rounded-xl border transition-all flex items-center justify-center ${showFilters
+                                ? 'bg-emerald-50 border-emerald-200 text-emerald-600 shadow-inner'
                                 : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-emerald-300'
-                            }`}
+                                }`}
                             title={showFilters ? "Esconder filtros" : "Mostrar filtros"}
                         >
                             <FiFilter size={22} />
@@ -128,12 +145,11 @@ export function Form({ alwaysShowFilters = false }) {
 
                 {/* Sessão de Filtros Expansível */}
                 <div
-                    className={`transition-all duration-300 ease-in-out overflow-hidden ${
-                        showFilters ? 'max-h-[600px] opacity-100 mt-6' : 'max-h-0 opacity-0 invisible'
-                    }`}
+                    className={`transition-all duration-300 ease-in-out overflow-hidden ${showFilters ? 'max-h-[600px] opacity-100 mt-6' : 'max-h-0 opacity-0 invisible'
+                        }`}
                 >
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-6 bg-[#f8fafc] rounded-xl border border-slate-100 relative">
-                        
+
                         <div className="flex flex-col gap-2">
                             <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider ml-1">Tipo de Ato</label>
                             <select
@@ -182,7 +198,7 @@ export function Form({ alwaysShowFilters = false }) {
 
                         {/* Rodapé: Alinhamento horizontal do Recolher e Limpar */}
                         <div className="md:col-span-3 flex items-center justify-between mt-2 pt-4 border-t border-slate-200/60">
-                            
+
                             <button
                                 type="button"
                                 onClick={() => setShowFilters(false)}
@@ -192,7 +208,7 @@ export function Form({ alwaysShowFilters = false }) {
                                 Recolher Filtros
                             </button>
 
-                            <button 
+                            <button
                                 type="button"
                                 onClick={handleClearFilters}
                                 className="flex items-center gap-1.5 text-[12px] font-bold text-[#94a3b8] hover:text-red-500 transition-colors uppercase"
@@ -204,8 +220,14 @@ export function Form({ alwaysShowFilters = false }) {
                     </div>
                 </div>
                 <div>
-                    
+
                 </div>
+                {error && (
+                    <div className="mt-4 p-4 bg-red-50 border border-red-100 rounded-xl flex items-center gap-3 text-red-600 animate-in fade-in slide-in-from-top-2 duration-300">
+                        <FiXCircle size={18} />
+                        <p className="text-sm font-semibold">{error}</p>
+                    </div>
+                )}
             </form>
         </div>
     );
