@@ -19,6 +19,7 @@ export default function Home() {
               <Typewriter
                 onInit={(typewriter) => {
                   typewriter
+                    .changeDeleteSpeed(5000)
                     .typeString('Busque')
                     .pauseFor(1000)
                     .deleteAll()
