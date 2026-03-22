@@ -22,7 +22,7 @@ export function SidebarMenu({ activeView, onSelectView }) {
         <header className="sticky top-0 h-screen w-72 bg-white border-r border-slate-200 flex flex-col items-center py-4 z-50">
             <div className="w-full flex flex-row justify-center items-center gap-4 mt-8 mb-4 p-2">
                 <ChevronLeft size={46} className="cursor-pointer hover:text-blue-600 transition-colors"/>
-                <img src="logo2-doifs.svg" alt="Logo Observatório Doifs" className="w-40"/>
+                <img src="logo-doifs-v1.png" alt="Logo Observatório Doifs" className="w-40"/>
             </div>
             
             <div className="flex flex-col w-full gap-2 px-0 pt-24">
