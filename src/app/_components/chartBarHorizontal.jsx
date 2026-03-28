@@ -85,7 +85,7 @@ export function ChartBarLabelCustom({ context }) {
           <div className="grid gap-1">
             <CardTitle className="text-xl font-black tracking-tight text-slate-800 flex items-center gap-2">
               <Award className="text-emerald-500" size={20} />
-              Top 10 Institutos - {context?.label}
+              Top 10 Institutos Mais Ativos - {context?.label}
             </CardTitle>
             <CardDescription className="text-slate-500 font-medium">
               Ranking por volume de {context?.serieA.label} e {context?.serieB.label}
@@ -186,7 +186,7 @@ export function ChartBarLabelCustom({ context }) {
             </div>
           </div>
           <div className="hidden md:flex items-center gap-1.5 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-100">
-             <span className="text-[11px] font-bold text-emerald-700 uppercase tracking-tight">Dados de Gestão</span>
+             <span className="text-[11px] font-bold text-emerald-700 uppercase tracking-tight">Dados de Gestão do Último ano</span>
           </div>
         </div>
       </CardFooter>

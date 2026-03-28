@@ -124,7 +124,7 @@ export function ChartLineMultianual({ context }) {
                 <SelectValue placeholder="Métrica" />
                 </SelectTrigger>
                 <SelectContent className="rounded-xl border-slate-100 shadow-xl">
-                <SelectItem value="both">Soma (A + B)</SelectItem>
+                <SelectItem value="both">Ambos</SelectItem>
                 <SelectItem value="serieA">{context?.serieA.label}</SelectItem>
                 <SelectItem value="serieB">{context?.serieB.label}</SelectItem>
                 </SelectContent>
@@ -235,7 +235,7 @@ export function ChartLineMultianual({ context }) {
 
           <div className="hidden sm:flex items-center gap-1.5 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-100">
              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-             <span className="text-[11px] font-bold text-emerald-700 uppercase tracking-tight">Comparativo Ativo</span>
+             <span className="text-[11px] font-bold text-emerald-700 uppercase tracking-tight">Análise Multianual</span>
           </div>
         </div>
       </CardFooter>

@@ -98,7 +98,7 @@ export function ChartArea({ context }) {
       <CardHeader className="flex items-center gap-4 space-y-0 border-b border-slate-50 py-6 sm:flex-row bg-slate-50/30">
         <div className="grid flex-1 gap-1 text-center sm:text-left">
           <CardTitle className="text-xl font-black tracking-tight text-slate-800">
-            {context?.label}
+            {context?.label} Trimestral
           </CardTitle>
           <CardDescription className="text-slate-500 font-medium">
             Análise comparativa: {context?.serieA.label} vs {context?.serieB.label}
@@ -200,7 +200,7 @@ export function ChartArea({ context }) {
           
           <div className="flex items-center gap-1.5 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-100">
              <TrendingUp className="h-4 w-4 text-emerald-600" />
-             <span className="text-[11px] font-bold text-emerald-700 uppercase tracking-tight">Análise Ativa</span>
+             <span className="text-[11px] font-bold text-emerald-700 uppercase tracking-tight">Análise Trimestral</span>
           </div>
         </div>
       </CardFooter>

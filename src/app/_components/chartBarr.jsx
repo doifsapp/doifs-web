@@ -202,7 +202,7 @@ export function ChartBarState({ context }) {
                 </div>
                 <div className="flex items-center gap-1.5 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-100">
                     <TrendingUp className="h-4 w-4 text-emerald-600" />
-                    <span className="text-[11px] font-bold text-emerald-700 uppercase tracking-tight">Geográfico</span>
+                    <span className="text-[11px] font-bold text-emerald-700 uppercase tracking-tight">Análise Geográfica</span>
                 </div>
             </CardFooter>
         </Card>
