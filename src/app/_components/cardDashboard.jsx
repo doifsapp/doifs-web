@@ -1,15 +1,58 @@
 'use client'
 
 import axios from "axios";
-import { TrendingUp, Info, TrendingDown, Sigma, Newspaper, ArrowUpRight } from "lucide-react";
+// Ícones do Lucide atualizados
+import { TrendingUp, Info, TrendingDown, Sigma, Newspaper, FileText, BarChart3, Clock3 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { format, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
+
+// --- Sub-componente: Stat Card Padronizado (Adaptado para ícones e cores especiais) ---
+const StatCard = ({ title, value, description, date, Icon, iconColor, bgColor, textColor }) => {
+    // Define as cores padrão se não forem informadas (para manter o padrão branco da Overview)
+    const bgClass = bgColor || "bg-white";
+    const borderClass = bgColor ? "border-emerald-700" : "border-slate-100";
+    const titleColorClass = textColor ? "text-emerald-100" : "text-slate-400";
+    const valueColorClass = textColor ? "text-white" : "text-slate-800";
+    const descColorClass = textColor ? "text-emerald-50" : "text-slate-400";
+    const dateColorClass = textColor ? "text-white bg-emerald-700" : "text-emerald-600 bg-emerald-50";
+
+    return (
+        <div className={`${bgClass} p-5 rounded-2xl border ${borderClass} shadow-sm flex flex-row items-center justify-between h-[120px] hover:shadow-md transition-all group overflow-hidden`}>
+            <div className="flex-1 flex flex-col justify-between h-full pr-3 min-w-0">
+                <div>
+                    <p className={`${titleColorClass} text-[11px] font-bold uppercase tracking-wider mb-1 truncate`}>
+                        {title}
+                    </p>
+                    <h3 className={`font-medium tracking-tighter ${valueColorClass} ${typeof value === 'string' && value.length > 5 ? 'text-2xl' : 'text-3xl'} truncate`}>
+                        {typeof value === 'number' ? value.toLocaleString() : value || '---'}
+                    </h3>
+                </div>
+                <div className="flex flex-col gap-0.5 mt-auto">
+                    <p className={`text-[10px] ${descColorClass} italic truncate`}>{description}</p>
+                    {date && (
+                        <span className={`text-[10px] font-medium ${dateColorClass} truncate w-fit px-1.5 py-0.5 rounded`}>
+                            {date}
+                        </span>
+                    )}
+                </div>
+            </div>
+
+            {/* Bloco da Direita: Ícone Sóbrio e Pequeno (Estilo Overview) */}
+            <div className="group-hover:scale-105 transition-transform flex items-center justify-center flex-shrink-0 ml-1">
+                <div className={`w-[50px] h-[50px] rounded-full flex items-center justify-center ${textColor ? 'bg-emerald-700' : 'bg-slate-50 border border-slate-100'}`}>
+                    <Icon className={`w-5 h-5 ${iconColor || 'text-slate-400'}`} strokeWidth={textColor ? 3 : 2} />
+                </div>
+            </div>
+        </div>
+    );
+};
 
 export function CardDashboard({ context }) {
     const [data, setData] = useState(null);
     const [mounted, setMounted] = useState(false);
 
+    // Mapeamento original mantido
     const historicKeyMap = {
         'nomeacoes': 'total_nomeação',
         'exoneracoes': 'total_exoneração',
@@ -31,6 +74,7 @@ export function CardDashboard({ context }) {
         setMounted(true);
         const getTotals = async () => {
             try {
+                // CORREÇÃO: Usando a URL correta conforme page.js
                 const response = await axios.get('/api/dashboard/totals');
                 setData(response.data);
             } catch (error) {
@@ -42,10 +86,10 @@ export function CardDashboard({ context }) {
 
     if (!mounted || !data || !context) {
         return (
-            <div className="mt-16 w-full">
-                <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="w-full">
+                <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 p-0 m-0 animate-pulse">
                     {[1, 2, 3, 4].map((i) => (
-                        <li key={i} className="h-[180px] bg-white rounded-3xl border border-slate-100 animate-pulse" />
+                        <li key={i} className="h-[120px] bg-slate-50 rounded-2xl border border-slate-100 list-none" />
                     ))}
                 </ul>
             </div>
@@ -54,6 +98,7 @@ export function CardDashboard({ context }) {
 
     const { types_counts, latest_pubs, count_by_type_all_time } = data;
 
+    // Lógica de negócio original para filtrar o ato mais recente
     const filteredPubs = (latest_pubs || []).filter((pub) => {
         const typeNorm = normalize(pub.type);
         const labelANorm = normalize(context.serieA.label);
@@ -63,57 +108,20 @@ export function CardDashboard({ context }) {
     });
 
     const latest = filteredPubs.length > 0 ? filteredPubs[0] : null;
+
+    // Lógica de negócio original para calcular o total histórico do contexto
     const keyA_historic = historicKeyMap[context.serieA.key];
     const keyB_historic = historicKeyMap[context.serieB.key];
     const total_geral = (count_by_type_all_time[keyA_historic] || 0) + (count_by_type_all_time[keyB_historic] || 0);
 
-    const cards = [
-        {
-            title: context.serieA.label,
-            count: types_counts[context.serieA.key] || 0,
-            icon: TrendingUp,
-            description: `Acumulado no último mês`,
-            color: 'text-emerald-600',
-            bgIcon: 'bg-emerald-50',
-            borderIcon: 'border-emerald-100'
-        },
-        {
-            title: context.serieB.label,
-            count: types_counts[context.serieB.key] || 0,
-            icon: TrendingDown,
-            description: `Acumulado no último mês`,
-            color: 'text-rose-600',
-            bgIcon: 'bg-rose-50',
-            borderIcon: 'border-rose-100'
-        },
-        {
-            title: 'Ato mais recente',
-            count: latest ? latest.acronym : '---',
-            icon: Newspaper,
-            description: latest ? `Última ${latest.type} em:` : 'Sem registros',
-            date: latest ? format(parseISO(latest.date), "dd/MM/yy", { locale: ptBR }) : '',
-            color: 'text-blue-600',
-            bgIcon: 'bg-blue-50',
-            borderIcon: 'border-blue-100'
-        },
-        {
-            title: 'Histórico Total',
-            count: (total_geral.toLocaleString('pt-BR')),
-            icon: Sigma,
-            description: 'Registros desde 2018',
-            color: 'text-amber-600',
-            bgIcon: 'bg-amber-50',
-            borderIcon: 'border-amber-100'
-        }
-    ];
-
     return (
         <div className="w-full">
+            {/* Cabeçalho de Secção Padronizado */}
             {/* Cabeçalho Normalizado */}
             <div className="flex items-center gap-3 mb-10 border-b border-slate-100 pb-5">
                 <TrendingUp size={24} className="text-emerald-600" />
                 <h1 className="text-2xl font-black tracking-tighter text-slate-900">
-                    Visão comparativa
+                    Visão Geral dos Indicadores
                 </h1>
                 <span className="bg-emerald-50 text-emerald-700 text-[11px] font-bold px-3 py-1 rounded-full border border-emerald-100 ml-auto flex items-center gap-1.5">
                     <Info size={14} />
@@ -121,47 +129,62 @@ export function CardDashboard({ context }) {
                 </span>
             </div>
 
-            <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {cards.map((card, index) => {
-                    const Icon = card.icon;
-                    return (
-                        <li key={index} className="list-none">
-                            <div className="h-full rounded-3xl shadow-sm border border-slate-100 bg-white overflow-hidden transition-all hover:shadow-md hover:-translate-y-1">
-                                {/* Header do Card - Estilo Padronizado */}
-                                <div className="px-6 py-4 border-b border-slate-50 bg-slate-50/30 flex justify-between items-center">
-                                    <p className="text-slate-500 font-black text-[10px] uppercase tracking-widest">
-                                        {card.title}
-                                    </p>
-                                    <div className={`p-1.5 rounded-lg border ${card.bgIcon} ${card.borderIcon} ${card.color}`}>
-                                        <Icon size={16} strokeWidth={2.5} />
-                                    </div>
-                                </div>
+            <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 p-0 m-0">
+                {/* 1. Card da Série A - Com TrendingUp Emerald */}
+                <li className="list-none">
+                    <StatCard
+                        title={`TOTAL ${context.serieA.label}`}
+                        value={types_counts[context.serieA.key] || 0}
+                        description="Acumulado no último mês"
+                        Icon={TrendingUp}
+                        iconColor="text-emerald-500"
+                    />
+                </li>
 
-                                {/* Conteúdo do Card */}
-                                <div className="p-6">
-                                    <div className="flex items-baseline gap-2">
-                                        <h4 className="font-black text-3xl text-slate-800 tracking-tight">
-                                            {card.count}
-                                        </h4>
-                                        <ArrowUpRight className="h-4 w-4 text-emerald-500/50" />
-                                    </div>
+                {/* 2. Card da Série B - Com TrendingDown Rose */}
+                <li className="list-none">
+                    <StatCard
+                        title={`TOTAL ${context.serieB.label}`}
+                        value={types_counts[context.serieB.key] || 0}
+                        description="Acumulado no último mês"
+                        Icon={TrendingDown}
+                        iconColor="text-rose-500"
+                    />
+                </li>
 
-                                    <div className="mt-4 flex flex-col gap-1">
-                                        <p className="text-[12px] font-medium text-slate-400 leading-tight">
-                                            {card.description}
-                                        </p>
-                                        {card.date && (
-                                            <span className="text-[11px] font-bold text-slate-500 bg-slate-100 w-fit px-2 py-0.5 rounded-md mt-1">
-                                                {card.date}
-                                            </span>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        </li>
-                    )
-                })}
+                {/* 3. Card do Ato Mais Recente - Com Ícone de Relógio Sóbrio */}
+                <li className="list-none">
+                    <StatCard
+                        title="Ato mais recente"
+                        value={latest ? latest.acronym : '---'}
+                        description={latest ? `Última ${latest.type} identificada` : 'Sem registros'}
+                        date={latest ? format(parseISO(latest.date), "dd 'de' MMMM", { locale: ptBR }) : ''}
+                        Icon={Clock3}
+                        iconColor="text-slate-400"
+                    />
+                </li>
+
+                {/* 4. Card do Histórico Total - ESTILO ESPECIAL EMERALD (Igual Overview) */}
+                <li className="list-none hover:scale-[1.02] transition-transform">
+                    <StatCard
+                        title="Histórico Total"
+                        value={total_geral}
+                        description="Registros consolidados"
+                        Icon={Sigma}
+                        iconColor="text-white"
+                        bgColor="bg-emerald-600" // Cor de fundo Emerald 600
+                        textColor="text-white"   // Texto branco
+                    />
+                </li>
             </ul>
+
+            {/* Banner Informativo Refinado */}
+            <div className="flex items-start md:items-center gap-3 mb-10 p-4 bg-white rounded-xl border border-slate-100">
+                <Info size={18} className="text-emerald-500 flex-shrink-0 mt-0.5 md:mt-0" />
+                <p className="text-[12px] text-slate-500 leading-relaxed max-w-5xl">
+                    O volume histórico consolida o total de ambos os atos de pessoal registrados desde 2018.
+                </p>
+            </div>
         </div>
     );
 }
