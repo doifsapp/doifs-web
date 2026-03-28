@@ -42,49 +42,47 @@ const DASHBOARD_CONTEXTS = {
 export default function Dashboard() {
     const [activeView, setActiveView] = useState("Visão geral");
 
-    // Encontra o contexto correspondente à label selecionada no Sidebar
-    const currentContext = Object.values(DASHBOARD_CONTEXTS).find(
-        (ctx) => ctx.label === activeView
-    );
+    const getContext = () => {
+        if (activeView === "Fluxo de Rotatividade") return DASHBOARD_CONTEXTS.ROTATIVIDADE;
+        if (activeView === "Gestão de Chefias") return DASHBOARD_CONTEXTS.CHEFIAS;
+        if (activeView === "Ciclo de Carreira") return DASHBOARD_CONTEXTS.CARREIRA;
+        if (activeView === "Substituições Temporárias") return DASHBOARD_CONTEXTS.TEMPORARIOS;
+        if (activeView === "Amparo e Seguridade") return DASHBOARD_CONTEXTS.SEGURIDADE;
+        return DASHBOARD_CONTEXTS.ROTATIVIDADE;
+    };
+
+    const currentContext = getContext();
 
     return (
-        <section className="bg-slate-50/80 min-h-screen flex flex-row font-sans text-slate-900">
+        <section className="flex min-h-screen bg-slate-50/50">
             <SidebarMenu activeView={activeView} onSelectView={setActiveView} />
-            
-            <div className="flex-1 flex flex-col items-center overflow-x-hidden">
-                <div className="max-w-6xl w-full px-4 py-8">
+
+            {/* Container Principal com Scroll */}
+            <div className="flex-1 h-screen overflow-y-auto">
+                {/* A largura é controlada aqui: 
+                   - max-w-[1400px]: Garante que em telas ultra-wide os gráficos não fiquem esticados demais.
+                   - mx-auto: Centraliza o bloco.
+                   - w-full: Garante que ocupe tudo até o limite do max-w.
+                */}
+                <div className="max-w-[1400px] mx-auto w-full p-8 pt-10">
                     
-                    {activeView === "Visão geral" ? (
+                    {/* VISÃO GERAL */}
+                    <div className={activeView === "Visão geral" ? "block" : "hidden"}>
                         <Overview />
-                    ) : (
+                    </div>
+
+                    {/* DEMAIS VISUALIZAÇÕES */}
+                    <div className={activeView !== "Visão geral" ? "block" : "hidden"}>
                         <div className="flex flex-col gap-8">
-                            {/* Passamos o 'context' para todos os componentes. 
-                                Cada gráfico usará context.serieA e context.serieB para o seu fetch individual. */}
-                            <div>
-                                <CardDashboard context={currentContext} />
-                            </div>
-                            
-                            <div className="pt-4">
-                                <ChartArea context={currentContext} />
-                            </div>
-
-                            <div className="pt-4">
-                                <ChartLineMultianual context={currentContext} />
-                            </div>
-
-                            <div className="pt-4">
-                                <ChartBarLabelCustom context={currentContext} />
-                            </div>
-
-                            <div className="pt-4 ">
-                                <ChartPieRegional context={currentContext} />
-                            </div>
-
-                            <div className="pt-4 ">
-                                <ChartBarState context={currentContext} />
-                            </div>
+                            <CardDashboard context={currentContext} />
+                            <ChartArea context={currentContext} />
+                            <ChartLineMultianual context={currentContext} />
+                            <ChartBarLabelCustom context={currentContext} />
+                            <ChartPieRegional context={currentContext} />
+                            <ChartBarState context={currentContext} />
                         </div>
-                    )}
+                    </div>
+
                 </div>
             </div>
         </section>
