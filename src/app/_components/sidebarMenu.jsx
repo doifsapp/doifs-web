@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link';
 import { 
   ChevronLeft,
   Home,
@@ -25,18 +26,18 @@ export function SidebarMenu({ activeView, onSelectView }) {
     return (
         <header className="sticky top-0 h-screen w-72 bg-white border-r border-slate-100 flex flex-col items-center py-6 z-50">
             {/* Header: Logo e Botão Voltar com link para "/" */}
-            <div className="w-full flex flex-row justify-center items-center gap-2 mb-10 px-6">
-                <a 
+            <div className="w-full flex flex-row justify-between items-center gap-2 mb-10 px-4">
+                <Link 
                     href="/" 
-                    className="p-2 hover:bg-slate-50 rounded-xl transition-colors cursor-pointer group"
+                    className="hover:bg-slate-50 rounded-xl transition-colors cursor-pointer group"
                 >
-                    <ChevronLeft size={24} className="text-slate-400 group-hover:text-emerald-600 transition-colors"/>
-                </a>
+                    <ChevronLeft size={40} className="text-slate-400 group-hover:text-emerald-600 transition-colors"/>
+                </Link>
                 <img src="logo-doifs-v1.png" alt="Logo Observatório Doifs" className="w-36 object-contain"/>
             </div>
             
             {/* Itens de Menu */}
-            <div className="flex flex-col w-full gap-1 px-4">
+            <div className="flex flex-col w-full gap-1 px-4 mt-12">
                 {options.map((option, index) => {
                     const Icon = option.icon;
                     const isActive = activeView === option.label;
