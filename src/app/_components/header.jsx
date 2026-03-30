@@ -28,8 +28,38 @@ export function Header() {
                 </Link>
 
                 {/* Desktop Nav */}
-                <nav className="hidden md:block">
-                   {/* ... seu menu desktop original ... */}
+                <nav className="hidden md:flex items-center">
+                    <ul className="flex items-center gap-8">
+                        {options.map((option, index) => (
+                            <li key={index}>
+                                <Link
+                                    href={option.id}
+                                    className="relative text-sm font-semibold text-slate-600 transition-colors hover:text-emerald-600 py-1
+                                    before:absolute 
+                                    before:bottom-0 
+                                    before:left-0 
+                                    before:h-[2px] 
+                                    before:w-0 
+                                    before:bg-emerald-500 
+                                    before:transition-all 
+                                    before:duration-300 
+                                    hover:before:w-full"
+                                >
+                                    {option.label}
+                                </Link>
+                            </li>
+                        ))}
+
+                        <li>
+                            <Link
+                                href="/dashboard"
+                                className="group relative inline-flex items-center gap-2 px-6 py-2.5 rounded-xl border-2 border-slate-200 text-sm font-bold text-slate-700 transition-all hover:border-emerald-300 hover:text-emerald-700 active:scale-95 hover:shadow-sm"
+                            >
+                                <LayoutGrid size={18} className="text-slate-400 group-hover:text-emerald-500 transition-colors" />
+                                <span>Dashboard</span>
+                            </Link>
+                        </li>
+                    </ul>
                 </nav>
 
                 {/* Mobile Menu Button */}
