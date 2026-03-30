@@ -6,30 +6,28 @@ import Typewriter from 'typewriter-effect';
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-slate-50 overflow-x-hidden relative">
+    // overflow-x-hidden é a trava de segurança contra o "balanço lateral"
+    <div className="min-h-screen bg-slate-50 overflow-x-hidden relative flex flex-col">
       <Header />
       
-      <main className="flex flex-col items-center pt-24 pb-10 overflow-x-hidden">
+      {/* pt-16 no mobile e pt-24 no desktop para compensar o header fixo */}
+      <main className="flex-1 flex flex-col items-center pt-12 md:pt-24 pb-12 px-4">
         
-        {/* Seção Hero - Focada em Atos de Pessoal */}
-        <div className="text-center mb-12 px-4 h-[140px] flex flex-col justify-center">
-          <h1 className="text-5xl md:text-6xl font-black tracking-tight text-slate-800 flex flex-col sm:flex-row items-center justify-center gap-3">
+        {/* Seção Hero: Altura mínima adaptável para evitar pulos de layout no Typewriter */}
+        <div className="text-center mb-10 md:mb-16 w-full max-w-4xl min-h-[160px] md:min-h-[140px] flex flex-col justify-center">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight text-slate-800 flex flex-col sm:flex-row items-center justify-center gap-2 md:gap-3">
             <span>DOIFS</span>
             
-            {/* CORREÇÃO DO BUG DE TRADUÇÃO: 
-                O atributo translate="no" impede que o tradutor do navegador quebre a lógica do DOM. */}
+            {/* min-w reduzido no mobile para evitar estouro de margem */}
             <span 
-              className="text-[#00a36c] min-w-[220px]" 
+              className="text-[#00a36c] min-w-[140px] sm:min-w-[220px] text-center sm:text-left" 
               translate="no" 
-              lang="en" // Definimos como 'en' para garantir que não tentem traduzir o 'Search'
+              lang="en"
             >
               <Typewriter
                 onInit={(typewriter) => {
                   typewriter
-                    // 1. ESPERA INICIAL de 2 segundos (2000 ms) antes de começar
                     .pauseFor(1000)
-                    
-                    // Removido o changeDeleteSpeed exagerado para uma UX mais natural
                     .typeString('Busque')
                     .pauseFor(1000)
                     .deleteAll()
@@ -44,28 +42,31 @@ export default function Home() {
                 }}
                 options={{
                   autoStart: true,
-                  loop: false, // Executa apenas uma vez
+                  loop: false,
                   cursor: '|',
-                  delay: 65, // Velocidade de digitação padrão ligeiramente ajustada para clareza
-                  deleteSpeed: 40, // Velocidade de deleção padrão ligeiramente ajustada
+                  delay: 65,
+                  deleteSpeed: 40,
                 }}
               />
             </span>
           </h1>
-          <p className="mt-6 text-slate-500 text-lg max-w-2xl mx-auto leading-relaxed">
+          
+          {/* Texto descritivo com tamanho de fonte fluido */}
+          <p className="mt-6 text-slate-500 text-sm sm:text-base md:text-lg max-w-2xl mx-auto leading-relaxed px-4">
             A plataforma inteligente para consulta de <span className="font-bold text-slate-700">atos de pessoal</span> 
             registrados nos Institutos Federais.
           </p>
         </div>
 
-        <div className="w-full">
+        {/* Container do Form com respiro nas bordas mobile */}
+        <div className="w-full max-w-5xl mx-auto px-1 sm:px-0">
           <Form />
         </div>
 
-        {/* Fundo decorativo sutil */}
+        {/* Fundo decorativo sutil - Ajustado para não criar scroll horizontal */}
         <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
-            <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] rounded-full bg-emerald-50/40 blur-[120px]" />
-            <div className="absolute -bottom-[10%] -right-[10%] w-[40%] h-[40%] rounded-full bg-blue-50/40 blur-[120px]" />
+            <div className="absolute -top-[5%] -left-[5%] w-[60%] md:w-[40%] h-[40%] rounded-full bg-emerald-50/50 blur-[80px] md:blur-[120px]" />
+            <div className="absolute -bottom-[5%] -right-[5%] w-[60%] md:w-[40%] h-[40%] rounded-full bg-blue-50/50 blur-[80px] md:blur-[120px]" />
         </div>
 
       </main>
