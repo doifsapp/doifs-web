@@ -34,7 +34,7 @@ const DASHBOARD_CONTEXTS = {
   SEGURIDADE: {
     label: "Amparo e Seguridade",
     serieA: { label: "Pensões", key: "pensoes" },
-    serieB: { label: "Auxílios", key: "auxilios" }
+    serieB: { label: "Aposentadorias", key: "aposentadorias" }
   }
 };
 
@@ -58,15 +58,7 @@ export default function Dashboard() {
             <div className="flex-1 h-screen overflow-y-auto pt-16 lg:pt-0">
                 
                 {/* AJUSTE: p-4 no mobile, p-8/pt-10 no desktop */}
-                <div className="max-w-[1400px] mx-auto w-full p-4 md:p-8 lg:pt-10">
-                    
-                    {/* Título da Visão Atual (Apenas Mobile para contexto) */}
-                    <div className="lg:hidden mb-6">
-                        <h1 className="text-2xl font-black text-slate-800 tracking-tight">
-                            {activeView}
-                        </h1>
-                        <p className="text-slate-500 text-sm">Análise de dados institucionais</p>
-                    </div>
+                <div className="max-w-[1400px] mx-auto w-full p-4 md:p-8 lg:pt-10">           
 
                     {/* VISÃO GERAL */}
                     <div className={activeView === "Visão geral" ? "block animate-in fade-in slide-in-from-bottom-4 duration-500" : "hidden"}>
