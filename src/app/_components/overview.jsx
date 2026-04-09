@@ -54,7 +54,7 @@ const MiniProgress = ({ percent }) => {
 // --- Sub-componente: Stat Card ---
 const StatCard = ({ title, value, totalGeneral }) => {
   const percentage = totalGeneral > 0 ? (value / totalGeneral) * 100 : 0;
-  
+
   return (
     <div className="
       bg-white p-4 rounded-2xl border border-slate-100 shadow-sm 
@@ -72,7 +72,7 @@ const StatCard = ({ title, value, totalGeneral }) => {
 
       {/* Conteúdo Central: Agora expandido */}
       <div className="flex items-end justify-between gap-2 mt-auto">
-        
+
         {/* div do Valor e Descrição (Área amarela preenchida aqui com flex-1) */}
         <div className="flex-1 flex flex-col min-w-0">
           <h3 className="
@@ -150,15 +150,26 @@ export function Overview() {
     <div className="w-full bg-slate-50/50 animate-in slide-in-from-bottom-3 duration-500">
       <div className="max-w-7xl mx-auto pb-10 lg:pt-24 xl:pt-0 xl:pb-0">
 
-        {/* Cabeçalho */}
-        <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-6 sm:mb-10 border-b border-slate-100 pb-5">
+
+        {/* Cabeçalho com fundo para melhor agrupamento visual */}
+        <div className="
+          bg-white p-4 sm:p-6 rounded-3xl border border-slate-100 shadow-sm 
+          flex flex-col sm:flex-row sm:items-center gap-3 
+          mb-8 sm:mb-12">
           <div className="flex items-center gap-3">
-            <TrendingUp size={24} className="text-emerald-600 flex-shrink-0" />
+            <div className="bg-emerald-50 p-2.5 rounded-2xl">
+              <TrendingUp size={24} className="text-emerald-600 flex-shrink-0" />
+            </div>
             <h1 className="text-xl sm:text-2xl font-black tracking-tighter text-slate-900">
               Visão Geral
             </h1>
           </div>
-          <span className="bg-emerald-50 text-emerald-700 text-[10px] font-bold px-3 py-1.5 rounded-full border border-emerald-100 sm:ml-auto flex items-center gap-1.5">
+
+          <span className="
+    bg-emerald-50 text-emerald-700 text-[10px] font-bold 
+    px-4 py-2 rounded-full border border-emerald-100 
+    sm:ml-auto flex items-center gap-1.5 self-start sm:self-center
+  ">
             <Info size={14} />
             Total: {totalGeral.toLocaleString()}
           </span>
