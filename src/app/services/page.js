@@ -1,5 +1,5 @@
 import { PageLayout } from "../_components/pageLayout";
-import { Search, BrainCircuit, BellRing, DatabaseZap } from "lucide-react";
+import { Search, BrainCircuit, Clock2, DatabaseZap } from "lucide-react";
 
 const servicos = [
   {
@@ -10,17 +10,17 @@ const servicos = [
   {
     icon: BrainCircuit,
     title: "Análise de Dados",
-    description: "Insights e relatórios sobre tendências de registros de pessoal."
+    description: "Insights e relatórios sobre tendências de registros de atos de pessoal."
   },
   {
     icon: DatabaseZap,
-    title: "Integração API",
-    description: "Acesse nossa base de dados diretamente através de uma API robusta e rápida."
+    title: "Base de dados",
+    description: "Acesse nossa base de dados atualizada diariamente através de Web Scraping"
   },
   {
-    icon: BellRing,
-    title: "Monitoramento Ativo",
-    description: "Receba alertas sobre novas publicações de seu interesse em tempo real."
+    icon: Clock2,
+    title: "Monitoramento em tempo real",
+    description: "O sistema faz rastreio de novas publicações disponíveis no Diário Oficial de União"
   }
 ];
 
@@ -51,7 +51,7 @@ export default function ServicosPage() {
                 <p className="text-slate-500 leading-relaxed text-sm md:text-base">
                   {servico.description}
                   <span className="block mt-2 opacity-60 text-[12px] italic">
-                    Eficiência garantida através de processos automatizados e curadoria de dados.
+                    Eficiência garantida através de processos filtrados e automatizados.
                   </span>
                 </p>
               </div>
