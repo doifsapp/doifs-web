@@ -10,7 +10,7 @@ import {
     TrendingUp,
     UserCog,
     ShieldCheck,
-    ArrowLeft
+    ChevronLeft
 } from 'lucide-react';
 
 const options = [
@@ -45,7 +45,9 @@ export function SidebarMenu({ activeView, onSelectView }) {
                     ref={scrollRef}
                     className="flex items-center overflow-x-auto scrollbar-hide snap-x snap-mandatory scroll-smooth px-4 py-2 gap-2 bg-white"
                 >
-                    {options.map((option, index) => {
+                    {options
+                    .filter(option => option.label != "Home")
+                    .map((option, index) => {
                         const Icon = option.icon;
                         const isActive = activeView === option.label;
                         const isLink = !!option.href;
@@ -111,7 +113,7 @@ export function SidebarMenu({ activeView, onSelectView }) {
                     
                     {/* Arrow Left */}
                     <Link href="/" className="p-2 hover:bg-slate-50 rounded-xl transition-colors group">
-                        <ArrowLeft size={20} className="text-slate-400 group-hover:text-emerald-500" />
+                        <ChevronLeft size={36} className="text-slate-400 group-hover:text-emerald-500" />
                     </Link>
 
                     {/* Logo */}
