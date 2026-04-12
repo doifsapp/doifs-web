@@ -59,7 +59,7 @@ export function ChartPieRegional({ context }) {
                 setRawData(data)
 
                 const years = Array.from(new Set(data.map(d => d.year))).sort((a, b) => b - a)
-                if (years.length > 0) setSelectedYear(String(years[0]))
+                if (years.length > 0) setSelectedYear(String(years[1]))
             } catch (error) {
                 console.error("Erro ao buscar dados regionais:", error)
             } finally {

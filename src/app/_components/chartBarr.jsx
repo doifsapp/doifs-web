@@ -48,7 +48,7 @@ export function ChartBarState({ context }) {
                 setRawData(data)
 
                 const years = Array.from(new Set(data.map(d => d.year))).sort((a, b) => b - a)
-                if (years.length > 0) setSelectedYear(String(years[0]))
+                if (years.length > 0) setSelectedYear(String(years[1]))
             } catch (error) {
                 console.error("Erro ao buscar dados estaduais:", error)
             } finally {
@@ -85,7 +85,7 @@ export function ChartBarState({ context }) {
 
     return (
         <Card className="rounded-3xl shadow-sm border-slate-100 bg-white overflow-hidden transition-all hover:shadow-md flex flex-col h-full">
-            <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-slate-100 shadow-sm gap-4">
+            <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-slate-100  gap-4">
                 <div className="grid gap-1">
                     <CardTitle className="text-xl font-black tracking-tight text-slate-800 flex items-center gap-2">
                         <MapPin className="h-5 w-5 text-emerald-600" />
