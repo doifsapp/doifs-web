@@ -46,14 +46,18 @@ export function ChartLineMultianual({ context }) {
       try {
         const response = await axios.get('api/dashboard/overview')
         const data = response.data.institutes_overview || []
-        const years = response.data.years || []
+        
+        // Captura e inverte a ordem dos anos aqui
+        const years = response.data.years ? [...response.data.years] : []
         
         setRawData(data)
         setAvailableYears(years)
         
         if (years.length >= 2) {
-          setAnoA(String(years[years.length - 1]))
-          setAnoB(String(years[years.length - 2]))
+          // Agora, como o array está invertido, os anos mais recentes 
+          // estarão no início do array (índice 0 e 1)
+          setAnoA(String(years[1]))
+          setAnoB(String(years[2]))
         }
       } catch (error) {
         console.error("Erro ao carregar dados multianuais:", error)
