@@ -35,7 +35,7 @@ export function ChartBarState({ context }) {
     // Cores padronizadas com o ChartArea (Emerald)
     const chartConfig = {
         valA: { label: context?.serieA.label, color: "#10b981" }, // Emerald 500
-        valB: { label: context?.serieB.label, color: "#a7f3d0" }, // Emerald 200
+        valB: { label: context?.serieB.label, color: "#6BD0AF" }, // Emerald 200
     }
 
     useEffect(() => {
