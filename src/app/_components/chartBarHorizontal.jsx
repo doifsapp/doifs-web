@@ -1,8 +1,9 @@
-"use client"
+'use client'
 
-import { useEffect, useState } from "react"
-import { TrendingUp } from "lucide-react"
-import { Bar, BarChart, CartesianGrid, LabelList, XAxis, YAxis } from "recharts"
+import { useEffect, useState, useMemo } from "react"
+import { TrendingUp, Award, Building2, BarChart3 } from "lucide-react"
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis, LabelList, ResponsiveContainer, Text } from "recharts" // Importado 'Text'
+import axios from "axios"
 
 import {
   Card,
@@ -13,233 +14,192 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import {
-  ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
-import axios from "axios"
 
-export const description = "Stacked bar chart showing Top 10 directors acts (Nomeações vs Exonerações) in Dark Mode."
-
-// Mock Data Top 10 Diretores com Nomeações/Exonerações e Instituições
-/*
-const chartData = [
-    {
-        'director': 'Dr. João Silva de Oliveira Filho',
-        'institute': 'IFAL',
-        'director_institute': 'Dr. João S. de O. Filho - IFAL', 
-        'total_acts': 987,
-        'nomeacoes': 438,
-        'exoneracoes': 549
-    },
-    {
-        'director': 'Dra. Maria Aparecida Rodrigues',
-        'institute': 'IFCE',
-        'director_institute': 'Dra. M. Aparecida R. - IFCE',
-        'total_acts': 852,
-        'nomeacoes': 441,
-        'exoneracoes': 411
-    },
-    {
-        'director': 'Eng. Pedro Henrique Vasconcelos',
-        'institute': 'IFSP',
-        'director_institute': 'Eng. Pedro H. Vasconcelos - IFSP',
-        'total_acts': 745,
-        'nomeacoes': 418,
-        'exoneracoes': 327
-    },
-    {
-        'director': 'Prof. Ana Cláudia Pereira Santos',
-        'institute': 'IFRJ',
-        'director_institute': 'Prof. Ana C. P. Santos - IFRJ',
-        'total_acts': 698,
-        'nomeacoes': 280,
-        'exoneracoes': 418
-    },
-    {
-        'director': 'Sr. Carlos Alberto Guimarães',
-        'institute': 'IFMG',
-        'director_institute': 'Sr. Carlos A. Guimarães - IFMG',
-        'total_acts': 610,
-        'nomeacoes': 342,
-        'exoneracoes': 268
-    },
-    {
-        'director': 'Sra. Fernanda Lima Azevedo',
-        'institute': 'IFRS',
-        'director_institute': 'Sra. Fernanda L. Azevedo - IFRS',
-        'total_acts': 550,
-        'nomeacoes': 296,
-        'exoneracoes': 254
-    },
-    {
-        'director': 'Dr. Roberto Gomes da Costa',
-        'institute': 'IFPE',
-        'director_institute': 'Dr. Roberto G. da Costa - IFPE',
-        'total_acts': 490,
-        'nomeacoes': 229,
-        'exoneracoes': 261
-    },
-    {
-        'director': 'Msc. Patrícia Mendes Rocha',
-        'institute': 'IFPR',
-        'director_institute': 'Msc. Patrícia M. Rocha - IFPR',
-        'total_acts': 412,
-        'nomeacoes': 177,
-        'exoneracoes': 235
-    },
-    {
-        'director': 'Sr. José Paulo Medeiros',
-        'institute': 'IFPB',
-        'director_institute': 'Sr. José P. Medeiros - IFPB',
-        'total_acts': 365,
-        'nomeacoes': 215,
-        'exoneracoes': 150
-    },
-    {
-        'director': 'Dra. Juliana Ferreira Campos',
-        'institute': 'IFTO',
-        'director_institute': 'Dra. Juliana F. Campos - IFTO',
-        'total_acts': 290,
-        'nomeacoes': 135,
-        'exoneracoes': 155
-    }
-];
-*/
-
-// Configuração do Gráfico (com cores Azuis - Mantidas para Dark Mode)
-const chartConfig = {
-    'total_acts': {
-        'label': 'Total de Atos'
-    },
-    'nomeacoes': {
-        'label': 'Nomeações',
-        // Azul Principal (Funciona bem em dark mode)
-        color: "hsl(210 40% 50%)", 
-    },
-    'exoneracoes': {
-        'label': 'Exonerações',
-        // Azul mais claro/escuro (Funciona bem em dark mode)
-        color: "hsl(210 40% 70%)",
-    },
-    'label_total': {
-        // Esta variável deve ser branca no seu tema escuro, garantindo contraste. var(--background) oi
-        color: "var(--background)", 
-    },
+// --- Sub-componente: Custom Tick para truncar texto ---
+// Isso garante que nomes longos como "Sudeste MG" não quebrem o layout.
+const CustomYAxisTick = (props) => {
+  const { x, y, payload } = props;
+  
+  return (
+    <Text
+      x={x}
+      y={y}
+      width={75} // Largura máxima do texto antes de truncar
+      textAnchor="end"
+      verticalAnchor="middle"
+      className="fill-slate-600 font-bold text-[11px]"
+      scaleToFit={false}
+      style={{fontFamily: 'inherit'}}
+    >
+      {payload.value}
+    </Text>
+  );
 };
 
-export function ChartBarLabelCustom() {
-  //request
-  const [chartData, setChartData] = useState({})
-  
+export function ChartBarLabelCustom({ context }) {
+  const [rawData, setRawData] = useState([])
+  const [isClient, setIsClient] = useState(false)
+  const [loading, setLoading] = useState(true)
+
   useEffect(() => {
-    axios
-    .get("api/dashboard/personnel")
-    .then((res) => {
-      setChartData(res.data)
-    })
-    .catch((error) => {
-      console.error("Erro ao buscar dados de responsáveis", error)
-    })
+    setIsClient(true)
+    async function fetchData() {
+      setLoading(true)
+      try {
+        const response = await axios.get("api/dashboard/personnel")
+        setRawData(response.data.tops_personnel || [])
+      } catch (error) {
+        console.error("Erro ao buscar dados do ranking:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchData()
   }, [])
 
-  const personnelData = chartData.tops_personnel || []
+  const chartData = useMemo(() => {
+    if (!rawData.length || !context) return []
 
-  //end request
-  const totalAtos = personnelData.reduce((sum, item) => sum + item.total_acts, 0);
-  
-  // Envolvemos o componente Card na classe 'dark' para forçar o tema escuro.
+    return rawData
+      .map(item => {
+        const valA = item[context.serieA.key] || 0
+        const valB = item[context.serieB.key] || 0
+        return {
+          ...item,
+          displayName: item.acronym,
+          fullName: item.responsible,
+          [context.serieA.key]: valA,
+          [context.serieB.key]: valB,
+          totalContext: valA + valB
+        }
+      })
+      .sort((a, b) => b.totalContext - a.totalContext)
+      .slice(0, 10)
+  }, [rawData, context])
+
+  const totalRankingSum = useMemo(() => {
+    return chartData.reduce((acc, curr) => acc + curr.totalContext, 0)
+  }, [chartData])
+
+  const chartConfig = useMemo(() => ({
+    [context?.serieA.key]: {
+      label: context?.serieA.label,
+      color: "#059669", 
+    },
+    [context?.serieB.key]: {
+      label: context?.serieB.label,
+      color: "#a7f3d0", 
+    },
+  }), [context])
+
+  if (!isClient) return <div className="w-full h-[450px] md:h-[500px] bg-white rounded-3xl border border-slate-100 animate-pulse" />
+
   return (
-    <div className="rounded-2xl dark bg-background"> {/* Adiciona a classe dark e um fundo para visualização */}
-      <Card className="bg-blue-950 shadow-2xl">
-        <CardHeader>
-          <CardTitle>Ranking dos top 10 diretores dos Insttutos Federais com mais atos assinados</CardTitle>
-          <CardDescription>Distribuição de nomeações e exonerações no intervalo de um ano.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ChartContainer 
-            config={chartConfig}
-            className="aspect-auto h-[400px] w-full"
-          >
-            <BarChart
-              accessibilityLayer
-              data={personnelData}
-              layout="vertical"
-              barSize={18} 
-              margin={{
-                left: 10,
-                right: 40,
-                top: 10,
-                bottom: 10,
-              }}
-            >
-              <CartesianGrid horizontal={false} />
-              
-              <YAxis dataKey="responsible" type="category" tickLine={false} tickMargin={10} axisLine={false} hide />
-              <XAxis dataKey="total_acts" type="number" hide />
-              
-              <ChartTooltip
-                cursor={{ fill: "transparent" }}
-                content={<ChartTooltipContent 
-                            indicator="line" 
-                            labelKey="responsible"
-                            nameKey="label"
-                        />}
-              />
-              
-              {/* Bar 1: Nomeações (Azul Escuro) */}
-              <Bar
-                dataKey="nomeacoes"
+    <Card className="rounded-2xl sm:rounded-3xl shadow-sm border-slate-100 bg-white h-full overflow-hidden transition-all hover:shadow-md">
+      <CardHeader className="border-b border-slate-50 bg-slate-50/30 py-5 px-6 sm:py-6 sm:px-8">
+        <div className="flex items-center justify-between gap-4">
+          <div className="grid gap-1">
+            <CardTitle className="text-lg sm:text-xl font-black tracking-tight text-slate-800 flex items-center gap-2">
+              <Award className="text-emerald-500 shrink-0" size={18} />
+              <span className="truncate">Top 10 - {context?.label}</span>
+            </CardTitle>
+            <CardDescription className="text-slate-500 text-xs sm:text-sm font-medium line-clamp-1">
+              Ranking por volume de publicações
+            </CardDescription>
+          </div>
+          <div className="bg-white p-2 rounded-xl border border-slate-200 shadow-sm hidden sm:block">
+            <BarChart3 size={18} className="text-slate-400" />
+          </div>
+        </div>
+      </CardHeader>
+      
+      <CardContent className="pt-6 px-1 sm:pt-8 sm:px-8"> {/* Ajuste sutil de padding lateral */}
+        {loading ? (
+          <div className="h-[350px] sm:h-[400px] flex flex-col items-center justify-center bg-slate-50/50 rounded-2xl animate-pulse text-slate-400 gap-3">
+            <div className="w-6 h-6 border-4 border-emerald-200 border-t-emerald-500 rounded-full animate-spin" />
+            <span className="text-xs font-medium italic">Gerando ranking...</span>
+          </div>
+        ) : (
+          <ChartContainer config={chartConfig} className="min-h-[350px] sm:min-h-[400px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={chartData}
                 layout="vertical"
-                stackId="a" 
-                fill={chartConfig.nomeacoes.color} 
-                radius={[4, 0, 0, 4]} 
+                // AJUSTE: Aumentada a margem esquerda (de -10 para 5) 
+                // para dar espaço ao novo Tick customizado.
+                margin={{ left: 5, right: 35, top: 0, bottom: 0 }}
+                barGap={0}
               >
-                {/* Rótulo 1: Nome do Diretor e Instituto (Dentro da Barra, em BRANCO) */}
-                <LabelList
-                  dataKey="responsible_institute"
-                  position="insideLeft"
-                  offset={10}
-                  fill="white"
-                  // Esta classe deve renderizar em BRANCO em um tema escuro - fill-[var(--color-label)]
-                  className=" font-semibold" 
-                  fontSize={12}
-                  style={{ textAnchor: 'start' }} 
+                <CartesianGrid horizontal={false} strokeDasharray="3 3" stroke="#f1f5f9" />
+                <YAxis
+                  dataKey="displayName"
+                  type="category"
+                  tickLine={false}
+                  tickMargin={8}
+                  axisLine={false}
+                  // AJUSTE: Aumentada a largura do eixo (de 55 para 85)
+                  width={85} 
+                  // AJUSTE: Usando componente customizado para renderizar e truncar o texto
+                  tick={<CustomYAxisTick />} 
                 />
-              </Bar>
+                <XAxis type="number" hide />
+                
+                <ChartTooltip
+                  cursor={{ fill: "#f8fafc" }}
+                  content={
+                    <ChartTooltipContent 
+                      className="rounded-xl border-slate-100 shadow-xl p-3"
+                      hideLabel 
+                    />
+                  }
+                />
 
-              {/* Bar 2: Exonerações (Azul Claro)*/}
-              <Bar
-                dataKey="exoneracoes"
-                layout="vertical"
-                stackId="a"
-                fill={chartConfig.exoneracoes.color}
-                radius={[0, 4, 4, 0]} 
-              >
-                 {/* Rótulo 2: Contagem TOTAL (No fim da barra, lado de fora) */}
-                <LabelList
-                  dataKey="total_acts"
-                  position="right"
-                  offset={8}
-                  // Esta classe renderiza a cor de foreground, que em dark mode é BRANCO/CLARO
-                  className="fill-foreground"
-                  fontSize={12}
+                <Bar
+                  dataKey={context.serieA.key}
+                  stackId="a"
+                  fill={chartConfig[context.serieA.key].color}
+                  barSize={20}
                 />
-              </Bar>
-            </BarChart>
+                <Bar
+                  dataKey={context.serieB.key}
+                  stackId="a"
+                  fill={chartConfig[context.serieB.key].color}
+                  radius={[0, 4, 4, 0]}
+                  barSize={20}
+                >
+                  <LabelList
+                    dataKey="totalContext"
+                    position="right"
+                    offset={10}
+                    className="fill-slate-800 font-black"
+                    fontSize={11}
+                  />
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
           </ChartContainer>
-        </CardContent>
-        <CardFooter className="flex-col items-start gap-2 text-sm">
-          <div className="flex gap-2 leading-none font-medium">
-            Total de Atos analisados no último ano: {totalAtos}
-            <TrendingUp className="h-4 w-4" />
+        )}
+      </CardContent>
+
+      <CardFooter className="flex-col items-start gap-3 border-t border-slate-50 bg-slate-50/20 py-5 px-6 sm:py-6 sm:px-8 mt-4">
+        <div className="flex flex-col sm:flex-row w-full items-start sm:items-center justify-between gap-4">
+          <div className="grid gap-1">
+            <div className="flex items-center gap-2 text-sm sm:text-base font-bold text-slate-800 leading-none">
+              {totalRankingSum.toLocaleString('pt-BR')} atos <TrendingUp className="h-4 w-4 text-emerald-500" />
+            </div>
+            <div className="text-[10px] sm:text-[12px] font-medium text-slate-400">
+              Somatório do Top 10 do último ano
+            </div>
           </div>
-          <div className="text-muted-foreground leading-none">
-            Ranking dos diretores com maior volume de atos, discriminado por Nomeação (Azul Escuro) e Exoneração (Azul Claro).
+          <div className="flex items-center gap-1.5 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-100">
+             <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-tight">Gestão Anual</span>
           </div>
-        </CardFooter>
-      </Card>
-    </div>
+        </div>
+      </CardFooter>
+    </Card>
   )
 }

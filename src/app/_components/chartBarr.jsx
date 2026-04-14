@@ -1,12 +1,15 @@
 'use client'
 
-import { Bar, BarChart, XAxis, YAxis, CartesianGrid, Legend, Tooltip } from "recharts"
-import * as React from "react"
-import { useState, useMemo, useEffect } from "react" // Adicionado useEffect
+import React, { useEffect, useState, useMemo } from "react"
+import { TrendingUp, MapPin, ArrowUpRight, Calendar } from "lucide-react"
+import { Bar, BarChart, ResponsiveContainer, CartesianGrid, XAxis, YAxis, Legend } from "recharts"
+import axios from "axios"
 
 import {
     Card,
     CardContent,
+    CardDescription,
+    CardFooter,
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
@@ -15,229 +18,200 @@ import {
     ChartTooltip,
     ChartTooltipContent,
 } from "@/components/ui/chart"
-// Importações de componentes de UI (Assumindo shadcn/ui)
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
-    SelectValue
+    SelectValue,
 } from "@/components/ui/select"
-import axios from "axios"
 
-// ... (Resto do rawApiDataState, YEARS e chartConfigState mantidos) ... oi
+export function ChartBarState({ context }) {
+    const [rawData, setRawData] = useState([])
+    const [selectedYear, setSelectedYear] = useState("")
+    const [isClient, setIsClient] = useState(false)
+    const [loading, setLoading] = useState(true)
 
-const rawApiDataState = [
-    { 'uf': 'AL', 'state_name': 'Alagoas', 'year': 2018, 'nomeacoes': 20, 'exoneracoes': 10 },
-    { 'uf': 'AM', 'state_name': 'Amazonas', 'year': 2018, 'nomeacoes': 0, 'exoneracoes': 1 },
-    { 'uf': 'BA', 'state_name': 'Bahia', 'year': 2018, 'nomeacoes': 1, 'exoneracoes': 0 },
-    { 'uf': 'CE', 'state_name': 'Ceará', 'year': 2018, 'nomeacoes': 1, 'exoneracoes': 0 },
-    { 'uf': 'DF', 'state_name': 'Distrito Federal', 'year': 2018, 'nomeacoes': 1, 'exoneracoes': 0 },
-    { 'uf': 'ES', 'state_name': 'Espírito Santo', 'year': 2018, 'nomeacoes': 1, 'exoneracoes': 1 },
-    { 'uf': 'GO', 'state_name': 'Goiás', 'year': 2018, 'nomeacoes': 2, 'exoneracoes': 1 },
-    { 'uf': 'MA', 'state_name': 'Maranhão', 'year': 2018, 'nomeacoes': 1, 'exoneracoes': 0 },
-    { 'uf': 'MG', 'state_name': 'Minas Gerais', 'year': 2018, 'nomeacoes': 6, 'exoneracoes': 1 },
-    { 'uf': 'MS', 'state_name': 'Mato Grosso do Sul', 'year': 2018, 'nomeacoes': 2, 'exoneracoes': 0 },
-    { 'uf': 'MT', 'state_name': 'Mato Grosso', 'year': 2018, 'nomeacoes': 2, 'exoneracoes': 2 },
-    { 'uf': 'PA', 'state_name': 'Pará', 'year': 2018, 'nomeacoes': 2, 'exoneracoes': 0 },
-
-    { 'uf': 'PB', 'state_name': 'Paraíba', 'year': 2018, 'nomeacoes': 2, 'exoneracoes': 0 },
-    { 'uf': 'PE', 'state_name': 'Pernambuco', 'year': 2018, 'nomeacoes': 2, 'exoneracoes': 0 },
-    { 'uf': 'PI', 'state_name': 'Piauí', 'year': 2018, 'nomeacoes': 1, 'exoneracoes': 0 },
-    { 'uf': 'PR', 'state_name': 'Paraná', 'year': 2018, 'nomeacoes': 1, 'exoneracoes': 3 },
-    { 'uf': 'RJ', 'state_name': 'Rio de Janeiro', 'year': 2018, 'nomeacoes': 4, 'exoneracoes': 0 },
-    { 'uf': 'RN', 'state_name': 'Rio Grande do Norte', 'year': 2018, 'nomeacoes': 1, 'exoneracoes': 0 },
-    { 'uf': 'RO', 'state_name': 'Rondônia', 'year': 2018, 'nomeacoes': 1, 'exoneracoes': 0 },
-    { 'uf': 'RR', 'state_name': 'Roraima', 'year': 2018, 'nomeacoes': 1, 'exoneracoes': 0 },
-    { 'uf': 'RS', 'state_name': 'Rio Grande do Sul', 'year': 2018, 'nomeacoes': 5, 'exoneracoes': 1 },
-    { 'uf': 'SC', 'state_name': 'Santa Catarina', 'year': 2018, 'nomeacoes': 3, 'exoneracoes': 0 },
-    { 'uf': 'SE', 'state_name': 'Sergipe', 'year': 2018, 'nomeacoes': 1, 'exoneracoes': 0 },
-    { 'uf': 'SP', 'state_name': 'São Paulo', 'year': 2018, 'nomeacoes': 1, 'exoneracoes': 0 },
-    { 'uf': 'TO', 'state_name': 'Tocantins', 'year': 2018, 'nomeacoes': 1, 'exoneracoes': 0 },
-
-    { 'uf': 'AL', 'state_name': 'Alagoas', 'year': 2019, 'nomeacoes': 120, 'exoneracoes': 27 },
-
-    { 'uf': 'AL', 'state_name': 'Alagoas', 'year': 2020, 'nomeacoes': 62, 'exoneracoes': 20 },
-
-    { 'uf': 'AL', 'state_name': 'Alagoas', 'year': 2021, 'nomeacoes': 77, 'exoneracoes': 29 },
-
-    { 'uf': 'AL', 'state_name': 'Alagoas', 'year': 2022, 'nomeacoes': 90, 'exoneracoes': 24 },
-
-    { 'uf': 'AL', 'state_name': 'Alagoas', 'year': 2023, 'nomeacoes': 144, 'exoneracoes': 73 },
-
-    { 'uf': 'AC', 'state_name': 'Acre', 'year': 2024, 'nomeacoes': 3, 'exoneracoes': 0 },
-    { 'uf': 'AL', 'state_name': 'Alagoas', 'year': 2024, 'nomeacoes': 29, 'exoneracoes': 29 },
-    { 'uf': 'DF', 'state_name': 'Distrito Federal', 'year': 2024, 'nomeacoes': 1, 'exoneracoes': 0 },
-    { 'uf': 'MG', 'state_name': 'Minas Gerais', 'year': 2024, 'nomeacoes': 1, 'exoneracoes': 0 },
-
-    { 'uf': 'AL', 'state_name': 'Alagoas', 'year': 2025, 'nomeacoes': 2, 'exoneracoes': 1 },
-    { 'uf': 'PB', 'state_name': 'Paraíba', 'year': 2025, 'nomeacoes': 1, 'exoneracoes': 0 },
-    { 'uf': 'ET', 'state_name': 'Estado Teste', 'year': 2025, 'nomeacoes': 0, 'exoneracoes': 0 }
-];
-
-const YEARS = [2025, 2024, 2023];
-
-const chartConfigState = {
-    uf: { label: "Estado" },
-    nomeacoes: {
-        label: "Nomeações",
-        color: "hsl(14, 100%, 70%)",
-    },
-    exoneracoes: {
-        label: "Exonerações",
-        color: "hsl(210, 100%, 65%)",
-    },
-};
-
-const transformAndFilterData = (apiData, year) => {
-    const filtered = apiData.filter(item => item.year === year);
-    const sorted = filtered.sort((a, b) => b.nomeacoes - a.nomeacoes);
-    return sorted;
-}
-
-
-// =========================================================================
-// 3. COMPONENTE PRINCIPAL (CORRIGIDO PARA HIDRATAÇÃO)
-// =========================================================================
-
-export function ChartStateGroupedBar() {
-    const [isMounted, setIsMounted] = useState(false);
-    const [chartData, setChartData] = useState({})
-    const [selectedYear, setSelectedYear] = useState("2018");
+    // Cores padronizadas com o ChartArea (Emerald)
+    const chartConfig = {
+        valA: { label: context?.serieA.label, color: "#10b981" }, // Emerald 500
+        valB: { label: context?.serieB.label, color: "#6BD0AF" }, // Emerald 200
+    }
 
     useEffect(() => {
-        axios
-        .get("api/dashboard/states")
-        .then((res) => {
-            setChartData(res.data)
-            const year_last = res.data.years?.[0]?.years || []
-            setSelectedYear(year_last[0].toString())
-        })
-        .catch((error) => {
-            console.error("Erro ao buscar dados estaduais", error)
-        })
-    }, [])
+        setIsClient(true)
+        async function fetchData() {
+            setLoading(true)
+            try {
+                const response = await axios.get("api/dashboard/states")
+                const data = response.data.state_totals || []
+                setRawData(data)
 
-    const statesData = chartData.state_totals || []
-    const years = chartData.years?.[0]?.years || []
+                const years = Array.from(new Set(data.map(d => d.year))).sort((a, b) => b - a)
+                if (years.length > 0) setSelectedYear(String(years[1]))
+            } catch (error) {
+                console.error("Erro ao buscar dados estaduais:", error)
+            } finally {
+                setLoading(false)
+            }
+        }
+        fetchData()
+    }, [context])
 
+    const availableYears = useMemo(() => {
+        return Array.from(new Set(rawData.map(d => d.year))).sort((a, b) => b - a)
+    }, [rawData])
 
-    // Efeito para definir isMounted como true após a montagem no cliente
-    useEffect(() => {
-        setIsMounted(true);
-    }, []); // Executa apenas uma vez após a primeira renderização do cliente
+    const chartData = useMemo(() => {
+        if (!rawData.length || !context || !selectedYear) return []
 
-    
+        return rawData
+            .filter(item => String(item.year) === selectedYear)
+            .map(item => ({
+                state: item.uf,
+                full_name: item.state_name,
+                valA: item[context.serieA.key] || 0,
+                valB: item[context.serieB.key] || 0,
+                total: (item[context.serieA.key] || 0) + (item[context.serieB.key] || 0)
+            }))
+            .sort((a, b) => b.total - a.total)
+    }, [rawData, context, selectedYear])
 
-    const filteredData = useMemo(() => {
-        return transformAndFilterData(statesData, selectedYear);
-    }, [selectedYear]);
+    const totalPeriod = useMemo(() => {
+        return chartData.reduce((acc, curr) => acc + curr.total, 0)
+    }, [chartData])
 
-    const whiteTextStyle = { fill: 'white', fontSize: 12 };
+    if (!isClient) return <div className="w-full h-[600px] rounded-3xl border bg-slate-50 animate-pulse" />
 
     return (
-        <div className="rounded-2xl dark bg-background">
-            <Card className="flex flex-col bg-blue-950 shadow-2xl">
-                <CardHeader className="items-start pb-0">
-                    <CardTitle className="text-white">Atos por Estado e Tipo</CardTitle>
+        <Card className="rounded-3xl shadow-sm border-slate-100 bg-white overflow-hidden transition-all hover:shadow-md flex flex-col h-full">
+            <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-slate-100  gap-4">
+                <div className="grid gap-1">
+                    <CardTitle className="text-xl font-black tracking-tight text-slate-800 flex items-center gap-2">
+                        <MapPin className="h-5 w-5 text-emerald-600" />
+                        Distribuição por Estado
+                    </CardTitle>
+                    <CardDescription className="text-slate-500 font-medium">
+                        Ranking por unidade federativa em {selectedYear}
+                    </CardDescription>
+                </div>
+                <div className="flex items-center gap-2 w-full sm:w-auto border-t sm:border-t-0 pt-3 sm:pt-0">
+                    <Calendar size={16} className="text-slate-400 shrink-0" />
+                    <Select value={selectedYear} onValueChange={setSelectedYear}>
+                    <SelectTrigger className="w-full sm:w-[140px] bg-white rounded-xl border-slate-200 font-bold text-slate-700 h-10 sm:h-11">
+                        <SelectValue placeholder="Ano" />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-xl border-slate-100 shadow-xl">
+                        {availableYears.map(year => (
+                            <SelectItem key={year} value={String(year)} className="rounded-lg">{year}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+                </div>
+            </CardHeader>
 
-                    {/* FILTRO DE ANO - Não precisa de isMounted, pois é HTML simples */}
-                    <div className="flex items-center gap-2 mt-2">
-                        <span className="text-sm text-gray-400">Ano:</span>
-                        <Select
-                            value={selectedYear.toString()}
-                            onValueChange={(value) => setSelectedYear(parseInt(value))}
-                        >
-                            <SelectTrigger className="w-[100px] text-white bg-gray-700 border-gray-600">
-                                <SelectValue placeholder="Selecione o Ano" />
-                            </SelectTrigger>
-                            <SelectContent className="bg-gray-800 border-gray-700">
-                                {years.map(year => (
-                                    <SelectItem key={year} value={year.toString()} className="text-white">
-                                        {year}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+            <CardContent className="flex-1 px-4 pt-8 sm:px-8">
+                {loading ? (
+                    <div className="h-[500px] flex flex-col items-center justify-center bg-slate-50/50 rounded-2xl animate-pulse text-slate-400 gap-3">
+                        <div className="w-8 h-8 border-4 border-emerald-200 border-t-emerald-500 rounded-full animate-spin" />
+                        <span className="text-sm font-medium italic">Sincronizando estados...</span>
                     </div>
-
-                </CardHeader>
-
-                <CardContent className="flex-1 pb-0 ">
-                    {/* NOVO: Renderiza o gráfico SÓ SE estiver montado no cliente */}
-                    {!isMounted ? (
-                        // Placeholder para evitar "jump" de layout (opcional)
-                        <div className="flex items-center justify-center h-[400px] text-gray-500">
-                            Carregando Gráfico...
-                        </div>
-                    ) : (
-                        <ChartContainer
-                            config={chartConfigState}
-                            className="mx-auto h-[1000px]"
-                        >
+                ) : (
+                    <ChartContainer config={chartConfig} className="min-h-[1200px] w-full">
+                        <ResponsiveContainer width="100%" height="100%">
                             <BarChart
-                                data={filteredData}
+                                data={chartData}
                                 layout="vertical"
-                                margin={{ left: 10, right: 10, top: 10, bottom: 10 }}
+                                margin={{ left: 10, right: 40, top: 20, bottom: 20 }}
+                                barCategoryGap="50%"
+                                barGap={2}
                             >
-                                <CartesianGrid
-                                    horizontal={false}
-                                    strokeDasharray="3 3"
-                                    stroke="#444444"
-                                />
+                                <CartesianGrid horizontal={false} strokeDasharray="3 3" stroke="#f1f5f9" />
 
-                                <XAxis
-                                    type="number"
-                                    tick={whiteTextStyle}
-                                    stroke="#555555"
-                                    tickFormatter={(value) => value.toLocaleString()}
+                                <YAxis
+                                    dataKey="state"
+                                    type="category"
+                                    tickLine={false}
+                                    axisLine={false}
+                                    fontSize={12}
+                                    fontWeight={700}
+                                    tick={{ fill: '#1e293b' }}
                                 />
 
                                 <YAxis
+                                    yAxisId="right"
+                                    orientation="right"
+                                    dataKey="total"
                                     type="category"
-                                    dataKey="state_name"
                                     tickLine={false}
-                                    tick={whiteTextStyle}
-                                    width={100}
-                                    stroke="#555555"
+                                    axisLine={false}
+                                    fontSize={11}
+                                    fontWeight={600}
+                                    tick={{ fill: '#64748b' }}
+                                    tickFormatter={(value) => `${value}`}
                                 />
 
+                                <XAxis type="number" hide />
+
                                 <ChartTooltip
+                                    cursor={{ fill: "#f8fafc" }}
                                     content={<ChartTooltipContent
-                                        className="bg-gray-800 text-white"
-                                        labelClassName="text-white"
+                                        className="rounded-xl border-slate-100 shadow-lg"
+                                        indicator="dot"
+                                        labelFormatter={(_, payload) => payload[0]?.payload?.full_name}
                                     />}
+                                />
+
+                                <Bar
+                                    dataKey="valA"
+                                    name={context?.serieA.label}
+                                    fill={chartConfig.valA.color}
+                                    radius={[0, 4, 4, 0]}
+                                    barSize={16}
+                                />
+
+                                <Bar
+                                    dataKey="valB"
+                                    name={context?.serieB.label}
+                                    fill={chartConfig.valB.color}
+                                    radius={[0, 4, 4, 0]}
+                                    barSize={16}
                                 />
 
                                 <Legend
                                     verticalAlign="top"
-                                    height={36}
-                                    wrapperStyle={{ color: 'white' }}
-                                //formatter={(value) => <span style={{ color: 'white' }}>{chartConfigState[value].label}</span>}
+                                    align="right"
+                                    iconType="circle"
+                                    wrapperStyle={{
+                                        paddingBottom: '40px',
+                                        fontSize: '12px',
+                                        fontWeight: '800',
+                                        color: '#64748b'
+                                    }}
                                 />
-
-                                <Bar
-                                    dataKey="nomeacoes"
-                                    fill="var(--color-nomeacoes)"
-                                    radius={[4, 4, 0, 0]}
-                                    name={chartConfigState.nomeacoes.label}
-                                />
-
-                                <Bar
-                                    dataKey="exoneracoes"
-                                    fill="var(--color-exoneracoes)"
-                                    radius={[4, 4, 0, 0]}
-                                    name={chartConfigState.exoneracoes.label}
-                                />
-
                             </BarChart>
-                        </ChartContainer>
-                    )}
-                </CardContent>
-                <div className="p-6 pt-0 text-sm text-gray-400">
-                    *Os dados são filtrados pelo ano selecionado e ordenados pelo volume de nomeações.
+                        </ResponsiveContainer>
+                    </ChartContainer>
+                )}
+            </CardContent>
+
+            <CardFooter className="border-t border-slate-50 bg-slate-50/20 py-6 px-8 flex-row items-center justify-between">
+                <div className="flex flex-col sm:flex-row w-full items-start sm:items-center justify-between gap-4">
+                    <div className="grid gap-1">
+                        <div className="flex items-center gap-2 text-base font-bold text-slate-800 leading-none">
+                            {totalPeriod.toLocaleString('pt-BR')} atos em {selectedYear}
+                            <ArrowUpRight className="h-4 w-4 text-emerald-500" />
+                        </div>
+                        <div className="text-[12px] font-medium text-slate-400">
+                            Ranking de produtividade por unidade da federação
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-1.5 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-100">
+                        <TrendingUp className="h-4 w-4 text-emerald-600" />
+                        <span className="text-[11px] font-bold text-emerald-700 uppercase tracking-tight">Análise Geográfica</span>
+                    </div>
                 </div>
-            </Card>
-        </div>
+            </CardFooter>
+        </Card>
     )
 }
