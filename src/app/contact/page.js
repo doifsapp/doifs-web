@@ -1,4 +1,3 @@
-'use client'
 
 import { PageLayout } from "../_components/pageLayout";
 import { Mail, Phone, MapPin, Send } from "lucide-react";
