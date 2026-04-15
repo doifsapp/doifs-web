@@ -30,7 +30,7 @@ export function SidebarMenu({ activeView, onSelectView }) {
         <>
             {/* --- HEADER/MENU HORIZONTAL --- */}
             <header className="xl:hidden fixed top-0 left-0 w-full bg-white/95 backdrop-blur-md border-b border-slate-100 z-[100] flex flex-col shadow-sm">
-                
+
                 <div className="flex items-center justify-between px-5 py-3 border-b border-slate-50">
                     <Link href="/" className="transition-transform active:scale-95">
                         <img src="/logo.png" alt="Logo Doifs" className="h-12 w-auto object-contain" />
@@ -46,82 +46,84 @@ export function SidebarMenu({ activeView, onSelectView }) {
                     className="flex items-center overflow-x-auto scrollbar-hide snap-x snap-mandatory scroll-smooth px-4 py-2 gap-2 bg-white"
                 >
                     {options
-                    .filter(option => option.label != "Home")
-                    .map((option, index) => {
-                        const Icon = option.icon;
-                        const isActive = activeView === option.label;
-                        const isLink = !!option.href;
+                        .filter(option => option.label != "Home")
+                        .map((option, index) => {
+                            const Icon = option.icon;
+                            const isActive = activeView === option.label;
+                            const isLink = !!option.href;
 
-                        return isLink ? (
-                            <Link
-                                key={index}
-                                href={option.href}
-                                className={`
+                            return isLink ? (
+                                <Link
+                                    key={index}
+                                    href={option.href}
+                                    className={`
                                     flex items-center gap-2 px-4 py-2.5 rounded-xl whitespace-nowrap 
                                     snap-center transition-transform active:scale-95
                                     ${isActive
-                                        ? 'bg-emerald-600 text-white shadow-md shadow-emerald-100'
-                                        : 'bg-transparent text-slate-500 hover:bg-slate-50'
-                                    }
+                                            ? 'bg-emerald-600 text-white shadow-md shadow-emerald-100'
+                                            : 'bg-transparent text-slate-500 hover:bg-slate-50'
+                                        }
                                 `}
-                            >
-                                <Icon
-                                    size={18}
-                                    className={isActive ? 'text-white' : 'text-slate-400'}
-                                />
-                                <span className={`
+                                >
+                                    <Icon
+                                        size={18}
+                                        className={isActive ? 'text-white' : 'text-slate-400'}
+                                    />
+                                    <span className={`
                                     text-xs uppercase tracking-wider 
                                     ${isActive ? 'font-black text-white' : 'font-bold text-slate-500'}
                                 `}>
-                                    {option.label}
-                                </span>
-                            </Link>
-                        ) : (
-                            <button
-                                key={index}
-                                onClick={() => onSelectView(option.label)}
-                                className={`
+                                        {option.label}
+                                    </span>
+                                </Link>
+                            ) : (
+                                <button
+                                    key={index}
+                                    onClick={() => onSelectView(option.label)}
+                                    className={`
                                     flex items-center gap-2 px-4 py-2.5 rounded-xl whitespace-nowrap 
                                     snap-center transition-transform active:scale-95
                                     ${isActive
-                                        ? 'bg-emerald-600 text-white shadow-md shadow-emerald-100'
-                                        : 'bg-transparent text-slate-500 hover:bg-slate-50'
-                                    }
+                                            ? 'bg-emerald-600 text-white shadow-md shadow-emerald-100'
+                                            : 'bg-transparent text-slate-500 hover:bg-slate-50'
+                                        }
                                 `}
-                            >
-                                <Icon
-                                    size={18}
-                                    className={isActive ? 'text-white' : 'text-slate-400'}
-                                />
-                                <span className={`
+                                >
+                                    <Icon
+                                        size={18}
+                                        className={isActive ? 'text-white' : 'text-slate-400'}
+                                    />
+                                    <span className={`
                                     text-xs uppercase tracking-wider 
                                     ${isActive ? 'font-black text-white' : 'font-bold text-slate-500'}
                                 `}>
-                                    {option.label}
-                                </span>
-                            </button>
-                        );
-                    })}
+                                        {option.label}
+                                    </span>
+                                </button>
+                            );
+                        })}
                 </nav>
             </header>
 
             {/* --- SIDEBAR LATERAL DESKTOP --- */}
             <header className="hidden xl:flex fixed top-0 left-0 h-screen bg-white border-r border-slate-100 flex-col items-center py-6 z-[110] w-72">
-                
+
                 {/* HEADER ALTERADO (seta + logo) */}
                 <div className="w-full flex flex-row items-center justify-between mb-8 px-6">
-                    
+
                     {/* Arrow Left */}
                     <Link href="/" className="p-2 hover:bg-slate-50 rounded-xl transition-colors group">
                         <ChevronLeft size={36} className="text-slate-400 group-hover:text-emerald-500" />
                     </Link>
 
                     {/* Logo */}
-                    <img 
-                        src="/logo.png" 
-                        alt="Logo Doifs" 
-                        className="w-[140px] md:w-[180px] h-auto object-contain"
-                    />
+                    <Link href="/" className="transition-transform hover:scale-105 active:scale-95">
+                        <img
+                            src="/logo.png"
+                            alt="Logo Doifs"
+                            className="w-[140px] md:w-[180px] h-auto object-contain"
+                        />
+                    </Link>
                 </div>
 
                 {/* MENU (INALTERADO) */}
