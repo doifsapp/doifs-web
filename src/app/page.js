@@ -30,8 +30,8 @@ export default function Home() {
 
           {/* Texto descritivo com tamanho de fonte fluido */}
           <p className="mt-6 text-slate-500 text-sm sm:text-base md:text-lg max-w-2xl mx-auto leading-relaxed px-4">
-            A plataforma inteligente para consulta de <span className="font-bold text-slate-700">atos de pessoal</span>
-            registrados nos Institutos Federais.
+            A plataforma inteligente para consulta de atos de pessoal
+            registrados dos Institutos Federais.
           </p>
         </div>
 
