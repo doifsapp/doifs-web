@@ -2,7 +2,7 @@
 import { Header } from "./_components/header";
 import { Form } from "./_components/form";
 import { TypewriterClient } from "./_components/TypewriterClient";
-import { Suspense } from "react";
+import { Suspense, Spinner } from "react";
 
 export default function Home() {
   return (
@@ -30,14 +30,14 @@ export default function Home() {
 
           {/* Texto descritivo com tamanho de fonte fluido */}
           <p className="mt-6 text-slate-500 text-sm sm:text-base md:text-lg max-w-2xl mx-auto leading-relaxed px-4">
-            A plataforma inteligente para consulta de <span className="font-bold text-slate-700">atos de pessoal</span>
-            registrados nos Institutos Federais.
+            A plataforma inteligente para consulta de atos de pessoal
+            registrados dos Institutos Federais.
           </p>
         </div>
 
         {/* Container do Form com respiro nas bordas mobile */}
         <div className="w-full max-w-5xl mx-auto px-1 sm:px-0">
-          <Suspense fallback={<div>Carregando...</div>}>
+          <Suspense fallback={<Spinner />}>
             <Form />
           </Suspense>
         </div>

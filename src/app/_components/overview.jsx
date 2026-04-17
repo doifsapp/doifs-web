@@ -165,6 +165,7 @@ export function Overview() {
   );
 
   const counts = apiData?.count_by_type_all_time || {};
+  const totalOutros = apiData?.count_by_type_all_time.total_outros || {};
   const totalGeral = apiData?.total_count || 0;
 
   const categories = [
@@ -248,6 +249,13 @@ export function Overview() {
               </div>
             </div>
           </div>
+        </div>
+        {/*Banner informativo */}
+        <div className="flex items-start md:items-center gap-3 mt-6 mb-10 p-4 bg-white rounded-xl border border-slate-100">
+          <Info size={18} className="text-emerald-500 flex-shrink-0 mt-0.5 md:mt-0" />
+          <p className="text-[12px] text-slate-500 leading-relaxed max-w-5xl xl:text-[16px]">
+            O volume histórico consolida o total de todos os atos de pessoal registrados desde 2018. Outros atos totalizam <strong>{totalOutros.toLocaleString()}</strong>.
+          </p>
         </div>
 
         {/* Gráfico */}
