@@ -37,7 +37,7 @@ export default function Home() {
 
         {/* Container do Form com respiro nas bordas mobile */}
         <div className="w-full max-w-5xl mx-auto px-1 sm:px-0">
-          <Suspense fallback={<p>ggg</p>}>
+          <Suspense>
             <Form />
           </Suspense>
         </div>
