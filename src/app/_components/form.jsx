@@ -101,7 +101,7 @@ export function Form({ alwaysShowFilters = false }) {
                         <input
                             type="text"
                             name="name"
-                            placeholder="Nome do servidor..."
+                            placeholder="Pesquise por nome ou SIAPE..."
                             value={formData.name}
                             onChange={handleChange}
                             className="w-full border border-slate-200 rounded-xl pl-12 pr-4 py-3.5 sm:py-4 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all text-slate-700 bg-slate-50/50 sm:bg-white text-base sm:text-lg"
