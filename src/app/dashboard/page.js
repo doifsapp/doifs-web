@@ -29,7 +29,7 @@ const DASHBOARD_CONTEXTS = {
   TEMPORARIOS: {
     label: "Substituições Temporárias",
     serieA: { label: "Substituições", key: "substituicoes" },
-    serieB: { label: "Interrupções", key: "interrupcoes" }
+    serieB: { label: "Afastamentos", key: "afastamentos" }
   },
   SEGURIDADE: {
     label: "Amparo e Seguridade",
