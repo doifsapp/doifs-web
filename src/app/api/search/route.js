@@ -8,6 +8,7 @@ export async function GET(request) {
   const acronym = searchParams.get('acronym')
   const type = searchParams.get('type')
   const year = searchParams.get('year')
+  const number = searchParams.get('number')
 
   // Monta a query string para a FastAPI
   const query = new URLSearchParams()
@@ -15,6 +16,7 @@ export async function GET(request) {
   if (acronym) query.append('acronym', acronym)
   if (type) query.append('type', type)
   if (year) query.append('year', year)
+  if (number) query.append('number', number)
 
   const FASTAPI_URL = process.env.PATH_URL_BASE_API
 

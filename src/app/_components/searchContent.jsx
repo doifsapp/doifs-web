@@ -9,6 +9,7 @@ import { Loader2, SearchX, LayoutGrid } from "lucide-react";
 export function SearchContent() {
     const [publicationsData, setPublications] = useState({ publications: [], count: 0 });
     const [isLoading, setIsLoading] = useState(true);
+    const [searchTime, setSearchTime] = useState(0);
     const searchParams = useSearchParams();
 
     const formatDate = (dateString) => {
@@ -27,11 +28,14 @@ export function SearchContent() {
 
             setIsLoading(true);
             const query = new URLSearchParams(params);
+            const startTime = performance.now()
 
             try {
                 const response = await axios.get(`/api/search?${query.toString()}`);
                 const data = response.data;
-                
+
+                const endTime = performance.now()
+                setSearchTime(((endTime - startTime) / 1000).toFixed(2))
                 const formatted = (data.publications || []).map(pub => ({
                     ...pub,
                     date: formatDate(pub.date)
@@ -61,8 +65,10 @@ export function SearchContent() {
 
     return (
         <div className="flex flex-col gap-6 w-full animate-in fade-in duration-500">
-            {/* Header de Resultados: Flex-col no mobile, Row no desktop */}
+            {/* Header de Resultados */}
             <div className="flex flex-col sm:flex-row sm:pt-8 items-start sm:items-center justify-between gap-4 px-2 md:px-0">
+
+                {/* Lado Esquerdo: Apenas Título */}
                 <div className="flex items-center gap-2">
                     <div className="p-2 bg-emerald-100 rounded-lg">
                         <LayoutGrid size={20} className="text-emerald-700" />
@@ -71,9 +77,20 @@ export function SearchContent() {
                         Resultados
                     </h2>
                 </div>
-                <span className="bg-emerald-50 text-emerald-700 text-xs font-bold px-4 py-1.5 rounded-full border border-emerald-100 shadow-sm">
-                    {count} {count === 1 ? 'publicação encontrada' : 'publicações encontradas'}
-                </span>
+
+                {/* Lado Direito: Cards de Tempo e Quantidade Lado a Lado */}
+                <div className="flex items-center gap-2 self-start sm:self-auto ml-auto sm:ml-0">
+                    {publications.length > 0 && (
+                        <span className="bg-slate-50 text-slate-600 text-xs font-bold px-4 py-1.5 rounded-full border border-slate-200/60 shadow-sm whitespace-nowrap animate-in fade-in duration-300">
+                            {searchTime}s de busca
+                        </span>
+                    )}
+
+                    <span className="bg-emerald-50 text-emerald-700 text-xs font-bold px-4 py-1.5 rounded-full border border-emerald-100 shadow-sm whitespace-nowrap">
+                        {count} {count === 1 ? 'publicação encontrada' : 'publicações encontradas'}
+                    </span>
+                </div>
+
             </div>
 
             {/* Listagem */}

@@ -34,7 +34,7 @@ export function Form({ alwaysShowFilters = false }) {
         fetchData()
     }, [])
 
-    const initialFormState = { name: '', acronym: '', type: '', year: '' };
+    const initialFormState = { name: '', acronym: '', type: '', year: '', number: '' };
     const [formData, setFormData] = useState(initialFormState);
     const [showFilters, setShowFilters] = useState(alwaysShowFilters);
 
@@ -48,8 +48,9 @@ export function Form({ alwaysShowFilters = false }) {
             acronym: params.acronym || '',
             type: params.type || '',
             year: params.year || '',
+            number: params.number || '',
         });
-        if (params.acronym || params.type || params.year) {
+        if (params.acronym || params.type || params.year || params.number) {
             setShowFilters(true);
         }
     }, [searchParams]);
@@ -63,7 +64,11 @@ export function Form({ alwaysShowFilters = false }) {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+        
+        // Validação: se o campo for 'number', aceita apenas dígitos numéricos
+        const cleanValue = name === 'number' ? value.replace(/\D/g, '') : value;
+        
+        setFormData(prev => ({ ...prev, [name]: cleanValue }));
     };
 
     const handleClearFilters = () => setFormData(initialFormState);
@@ -132,7 +137,7 @@ export function Form({ alwaysShowFilters = false }) {
                 {/* Filtros */}
                 <div className={`transition-all duration-500 overflow-hidden ${showFilters ? 'max-h-[800px] opacity-100 mt-4 sm:mt-6' : 'max-h-0 opacity-0 invisible'
                     }`}>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 p-4 sm:p-6 bg-slate-50 rounded-2xl border border-slate-100">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 p-4 sm:p-6 bg-slate-50 rounded-2xl border border-slate-100">
 
                         {/* TYPE */}
                         <div className="flex flex-col gap-1.5">
@@ -141,7 +146,7 @@ export function Form({ alwaysShowFilters = false }) {
                             </label>
 
                             <Select value={formData.type || "all"} onValueChange={(v) => handleSelectChange("type", v)}>
-                                <SelectTrigger className="bg-white border-slate-200 rounded-xl font-medium text-slate-600 h-11">
+                                <SelectTrigger className="bg-white border-slate-200 rounded-xl font-medium text-slate-600 h-11 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500">
                                     <SelectValue placeholder="Todos os Atos" />
                                 </SelectTrigger>
                                 <SelectContent
@@ -163,7 +168,7 @@ export function Form({ alwaysShowFilters = false }) {
                             </label>
 
                             <Select value={formData.acronym || "all"} onValueChange={(v) => handleSelectChange("acronym", v)}>
-                                <SelectTrigger className="bg-white border-slate-200 rounded-xl font-medium text-slate-600 h-11">
+                                <SelectTrigger className="bg-white border-slate-200 rounded-xl font-medium text-slate-600 h-11 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500">
                                     <SelectValue placeholder="Todos Institutos" />
                                 </SelectTrigger>
                                 <SelectContent
@@ -179,13 +184,13 @@ export function Form({ alwaysShowFilters = false }) {
                         </div>
 
                         {/* YEAR */}
-                        <div className="flex flex-col gap-1.5 sm:col-span-2 md:col-span-1">
+                        <div className="flex flex-col gap-1.5">
                             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">
                                 Ano
                             </label>
 
                             <Select value={formData.year || "all"} onValueChange={(v) => handleSelectChange("year", v)}>
-                                <SelectTrigger className="bg-white border-slate-200 rounded-xl font-medium text-slate-600 h-11">
+                                <SelectTrigger className="bg-white border-slate-200 rounded-xl font-medium text-slate-600 h-11 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500">
                                     <SelectValue placeholder="Qualquer ano" />
                                 </SelectTrigger>
                                 <SelectContent
@@ -194,14 +199,29 @@ export function Form({ alwaysShowFilters = false }) {
                                     className="rounded-xl border-slate-100 shadow-xl z-[999]">
                                     <SelectItem value="all">Qualquer ano</SelectItem>
                                     {years.map(y => (
-                                        <SelectItem key={y} value={y}>{y}</SelectItem>
+                                        <SelectItem key={y} value={String(y)}>{y}</SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>
                         </div>
 
+                        {/* NUMBER */}
+                        <div className="flex flex-col gap-1.5">
+                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">
+                                Número da portaria
+                            </label>
+                            <input
+                                type="text"
+                                name="number"
+                                placeholder="Ex: 1234"
+                                value={formData.number}
+                                onChange={handleChange}
+                                className="w-full bg-white border border-slate-200 rounded-xl px-4 h-11 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all font-medium text-slate-600 placeholder:text-slate-400 text-sm"
+                            />
+                        </div>
+
                         {/* FOOTER */}
-                        <div className="sm:col-span-2 md:col-span-3 flex flex-col sm:flex-row items-center justify-between mt-2 pt-4 border-t border-slate-200/60 gap-4">
+                        <div className="sm:col-span-2 md:col-span-4 flex flex-col sm:flex-row items-center justify-between mt-2 pt-4 border-t border-slate-200/60 gap-4">
                             <button
                                 type="button"
                                 onClick={() => setShowFilters(false)}
