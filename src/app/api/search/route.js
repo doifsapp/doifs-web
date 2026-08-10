@@ -27,7 +27,7 @@ export async function GET(request) {
 
   try {
       console.log("ROUTE SEARCH ><")
-      const response = await axios.get(`${FASTAPI_URL}/buscar?${query.toString()}`)
+      const response = await axios.get(`${FASTAPI_URL}/publications?${query.toString()}`)
       return NextResponse.json(response.data)
 
     } catch (error) {

@@ -9,7 +9,7 @@ export async function GET() {
     }
 
     try {
-        const response = await axios.get(`${FASTAPI_URL}/region-totals`)
+        const response = await axios.get(`${FASTAPI_URL}/region`)
         return NextResponse.json(response.data)
     } catch (error) {
         console.error("Erro ao consultar API", error.message)

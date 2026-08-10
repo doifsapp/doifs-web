@@ -9,7 +9,7 @@ export async function GET() {
     }
 
     try {
-        const response = await axios.get(`${FASTAPI_URL}/filters`);
+        const response = await axios.get(`${FASTAPI_URL}/publications/filters`);
         console.log("SUCESSOOOO")
         return NextResponse.json(response.data)
 

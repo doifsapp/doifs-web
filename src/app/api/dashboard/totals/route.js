@@ -12,7 +12,7 @@ export async function GET() {
 
     try {
         //requisição sincrona
-        const response = await axios.get(`${FASTAPI_URL}/get-totals`);
+        const response = await axios.get(`${FASTAPI_URL}/publications/summary`);
         //resposta correta
         console.log("API ROUTE")
         return NextResponse.json(response.data)
